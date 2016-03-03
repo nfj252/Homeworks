@@ -217,7 +217,7 @@ int main(int argc, char *argv[])
 	bool done = false;
 	while (!done) 
 	{
-		glClearColor(255.0f, 255.0f, 255.0f, 1.0f);
+		glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT);
 
 		glEnableVertexAttribArray(program.positionAttribute);
@@ -252,7 +252,7 @@ int main(int argc, char *argv[])
 				if (i == numberOfEnemyRows * numberOfEnemyColumns - 1)
 					gameStatus = 3;
 			}
-
+			
 			for (int i = 0; i < numberOfEnemyRows * numberOfEnemyColumns; i++)
 			{
 				shipEnemyHolder[i].x += shipEnemyHolder[i].xTimeMove;
@@ -261,20 +261,36 @@ int main(int argc, char *argv[])
 					program.setModelMatrix(shipEnemyModelMatrixHolder[i]);
 					DrawSpriteSheetSprite(&program, spriteSheetTexture, 5, spriteCountX, spriteCountY, initialShipEnemyModelVerticies);
 					shipEnemyModelMatrixHolder[i].Translate(shipEnemyHolder[i].xTimeMove, 0, 0);
+					if (shipEnemyHolder[i].y - shipEnemyHolder[i].height / 2 < shipPlayer.y + shipPlayer.height / 2 &&
+						shipEnemyHolder[i].y + shipEnemyHolder[i].height / 2 > shipPlayer.y + shipPlayer.height / 2 &&
+						shipEnemyHolder[i].x + shipEnemyHolder[i].width / 2 > shipPlayer.x + shipPlayer.width / 2 &&
+						shipEnemyHolder[i].x - shipEnemyHolder[i].width / 2 < shipPlayer.x + shipPlayer.width / 2)
+					{
+						gameStatus = 2;
+						break;
+					}
 				}
 			}
-
+			
 			if (shipEnemyHolder[0].x <= upperLeftShipX)
 			{
 				for (int i = 0; i < numberOfEnemyRows * numberOfEnemyColumns; i++)
-					shipEnemyHolder[i].xTimeMove = elapsed / 8;
+				{
+					shipEnemyHolder[i].xTimeMove = elapsed /2;
+					shipEnemyHolder[i].y -= elapsed*200;
+					shipEnemyModelMatrixHolder[i].Translate(0, -elapsed*200, 0);
+				}
 			}
-			else if (shipEnemyHolder[numberOfEnemyColumns-1].x >= -upperLeftShipX)
+			else if (shipEnemyHolder[numberOfEnemyColumns - 1].x >= -upperLeftShipX)
 			{
 				for (int i = 0; i < numberOfEnemyRows * numberOfEnemyColumns; i++)
-					shipEnemyHolder[i].xTimeMove = -elapsed / 8;
+				{
+					shipEnemyHolder[i].xTimeMove = -elapsed /2;
+					shipEnemyHolder[i].y -= elapsed*200;
+					shipEnemyModelMatrixHolder[i].Translate(0, -elapsed*200, 0);
+				}
 			}
-
+			
 			for (int i = 0; i < projectileBulletClipSize; i++)
 			{
 				playerProjectileHolder[i].yTimeMove = elapsed * 2.0f;
