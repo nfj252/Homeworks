@@ -17,7 +17,7 @@ using namespace std;
 
 SDL_Window* displayWindow;
 
-GLuint LoadTexture(const char *image_path) 
+GLuint LoadTexture(const char *image_path)
 {
 	SDL_Surface *surface = IMG_Load(image_path);
 	GLuint textureID;
@@ -61,8 +61,8 @@ void DrawText(ShaderProgram *program, int fontTexture, std::string text, float s
 	glDrawArrays(GL_TRIANGLES, 0, text.size() * 6);
 }
 
-void DrawSpriteSheetSprite(ShaderProgram *program, int spriteTexture, int index, int spriteCountX, int spriteCountY, 
-						   float matrixVerticies[]) 
+void DrawSpriteSheetSprite(ShaderProgram *program, int spriteTexture, int index, int spriteCountX, int spriteCountY,
+	float matrixVerticies[])
 {
 	float u = (float)(((int)index) % spriteCountX) / (float)spriteCountX;
 	float v = (float)(((int)index) / spriteCountX) / (float)spriteCountY;
@@ -70,7 +70,7 @@ void DrawSpriteSheetSprite(ShaderProgram *program, int spriteTexture, int index,
 	float spriteHeight = 1.0f / (float)spriteCountY;
 
 	float textureVerticies[] = { u, v + spriteHeight, u + spriteWidth, v + spriteHeight, u + spriteWidth, v,
-										u, v + spriteHeight, u + spriteWidth, v, u, v };
+		u, v + spriteHeight, u + spriteWidth, v, u, v };
 
 	glVertexAttribPointer(program->positionAttribute, 2, GL_FLOAT, false, 0, matrixVerticies);
 	glVertexAttribPointer(program->texCoordAttribute, 2, GL_FLOAT, false, 0, textureVerticies);
@@ -89,6 +89,15 @@ public:
 	float yTimeMove = 0;
 	bool enabled = true;
 };
+
+bool checkForCollision(Entity* a, Entity* b)
+{
+	if (a->y - a->height / 2 < b->y + b->height / 2 && a->y + a->height / 2 > b->y + b->height / 2 &&
+		a->x + a->width / 2 > b->x + b->width / 2 && a->x - a->width / 2 < b->x + b->width / 2)
+		return true;
+	else
+		return false;
+}
 
 int main(int argc, char *argv[])
 {
@@ -261,10 +270,7 @@ int main(int argc, char *argv[])
 					program.setModelMatrix(shipEnemyModelMatrixHolder[i]);
 					DrawSpriteSheetSprite(&program, spriteSheetTexture, 5, spriteCountX, spriteCountY, initialShipEnemyModelVerticies);
 					shipEnemyModelMatrixHolder[i].Translate(shipEnemyHolder[i].xTimeMove, 0, 0);
-					if (shipEnemyHolder[i].y - shipEnemyHolder[i].height / 2 < shipPlayer.y + shipPlayer.height / 2 &&
-						shipEnemyHolder[i].y + shipEnemyHolder[i].height / 2 > shipPlayer.y + shipPlayer.height / 2 &&
-						shipEnemyHolder[i].x + shipEnemyHolder[i].width / 2 > shipPlayer.x + shipPlayer.width / 2 &&
-						shipEnemyHolder[i].x - shipEnemyHolder[i].width / 2 < shipPlayer.x + shipPlayer.width / 2)
+					if (checkForCollision(&shipEnemyHolder[i], &shipPlayer))
 					{
 						gameStatus = 2;
 						break;
@@ -304,10 +310,7 @@ int main(int argc, char *argv[])
 					
 					for (int j = 0; j < numberOfEnemyRows * numberOfEnemyColumns; j++)
 					{
-						if (shipEnemyHolder[j].y - shipEnemyHolder[j].height / 2 < playerProjectileHolder[i].y + playerProjectileHolder[i].height / 2 &&
-							shipEnemyHolder[j].y + shipEnemyHolder[j].height / 2 > playerProjectileHolder[i].y + playerProjectileHolder[i].height / 2 &&
-							shipEnemyHolder[j].x + shipEnemyHolder[j].width / 2 > playerProjectileHolder[i].x + playerProjectileHolder[i].width / 2 &&
-							shipEnemyHolder[j].x - shipEnemyHolder[j].width / 2 < playerProjectileHolder[i].x + playerProjectileHolder[i].width / 2)
+						if (checkForCollision(&shipEnemyHolder[j], &playerProjectileHolder[i]))
 						{
 							if (shipEnemyHolder[j].enabled)
 								playerProjectileHolder[i].enabled = false;
