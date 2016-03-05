@@ -270,7 +270,7 @@ int main(int argc, char *argv[])
 					program.setModelMatrix(shipEnemyModelMatrixHolder[i]);
 					DrawSpriteSheetSprite(&program, spriteSheetTexture, 5, spriteCountX, spriteCountY, initialShipEnemyModelVerticies);
 					shipEnemyModelMatrixHolder[i].Translate(shipEnemyHolder[i].xTimeMove, 0, 0);
-					if (checkForCollision(&shipEnemyHolder[i], &shipPlayer))
+					if (shipEnemyHolder[i].y <= shipPlayer.y || checkForCollision(&shipEnemyHolder[i], &shipPlayer))
 					{
 						gameStatus = 2;
 						break;
