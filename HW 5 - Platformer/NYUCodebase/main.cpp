@@ -134,7 +134,7 @@ public:
 
 	void handleCollisionWith(Entity* other)
 	{
-		if (abs(x - other->x) < other->width/2)
+		if (abs(x - other->x) < (width + other->width)/2.5f)
 		{
 			yVelocity = 0.0f;
 			if (y > other->y)
@@ -153,7 +153,7 @@ public:
 			}
 		}
 
-		if (abs(y - other->y) < other->height / 2)
+		if (abs(y - other->y) < (height + other->height) / 2.5f)
 		{
 			xVelocity = 0.0f;
 			if (x > other->x)
@@ -189,7 +189,7 @@ void resetGame(vector<Entity>* staticContainer, Entity* thePlayer, Entity* theGo
 	}
 
 	thePlayer->x = -10.0f;
-	thePlayer->y = 3.0f;
+	thePlayer->y = 10.0f;
 	thePlayer->width = .25f;
 	thePlayer->height = .5f;
 	thePlayer->xFriction = .1f;
