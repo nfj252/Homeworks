@@ -9,6 +9,9 @@
 #include "Matrix.h"
 #include <vector>
 #include <string>
+#include <stdlib.h>
+#include <time.h>
+#include <conio.h>
 using namespace std;
 
 #ifdef _WINDOWS
@@ -171,6 +174,35 @@ public:
 	}
 };
 
+void resetGame(vector<Entity>* staticContainer, Entity* thePlayer, Entity* theGoal)
+{
+	staticContainer->clear();
+	for (float i = -5; i < 5; i += .5)
+	{
+		Entity floor;
+		floor.x = i * 2;
+		floor.y = -(rand() % 6) / 2.0f;
+		floor.width = .5f;
+		floor.height = .5f;
+		floor.matrix.setPosition(floor.x, floor.y, 0);
+		staticContainer->push_back(floor);
+	}
+
+	thePlayer->x = -10.0f;
+	thePlayer->y = 3.0f;
+	thePlayer->width = .25f;
+	thePlayer->height = .5f;
+	thePlayer->xFriction = .1f;
+	thePlayer->yFriction = .1f;
+	thePlayer->matrix.setPosition(thePlayer->x, thePlayer->y, 0);
+
+	theGoal->x = (*staticContainer)[staticContainer->size() - 1].x;
+	theGoal->y = (*staticContainer)[staticContainer->size() - 1].y + (*staticContainer)[staticContainer->size() - 1].height;
+	theGoal->width = .5f;
+	theGoal->height = .5f;
+	theGoal->matrix.setPosition(theGoal->x, theGoal->y, 0);
+}
+
 int main(int argc, char *argv[])
 {
 	SDL_Init(SDL_INIT_VIDEO);
@@ -203,40 +235,16 @@ int main(int argc, char *argv[])
 	Mix_Music *musicFinish = Mix_LoadMUS("wombo.mp3");
 	Mix_PlayMusic(musicStart, -1);
 
-	//PLAYER OBJECT STUFF
 	Entity player;
-	player.x = 0.0f;
-	player.y = 0.0f;
-	player.width = .25f;
-	player.height = .5f;
-	player.xFriction = .1f;
-	player.yFriction = .1f;
-	player.matrix.setPosition(player.x, player.y, 0);
-	float playerModelVerticies[] = {-.125,-.25, .125,-.25, .125,.25, -.125,-.25, .125,.25, -.125,.25};
-
-	//FLOOR OBJECT STUFF
+	float playerModelVerticies[] = { -.125, -.25, .125, -.25, .125, .25, -.125, -.25, .125, .25, -.125, .25 };
 	vector<Entity> staticEntities;
-	for (float i = -.5; i < 5; i+=.5)
-	{
-		Entity floor;
-		floor.x = i;
-		floor.y = i-1;
-		floor.width = .5f;
-		floor.height = .5f;
-		floor.matrix.setPosition(floor.x, floor.y, 0);
-		staticEntities.push_back(floor);
-	}
-
-	Entity goal;
-	goal.x = staticEntities[staticEntities.size()-1].x;
-	goal.y = staticEntities[staticEntities.size()-1].y + staticEntities[staticEntities.size()-1].height;
-	goal.width = .5f;
-	goal.height = .5f;
-	goal.matrix.setPosition(goal.x, goal.y, 0);
-
 	float floorModelVerticies[] = { -.25, -.25, .25, -.25, .25, .25, -.25, -.25, .25, .25, -.25, .25 };
+	Entity goal;
+	srand(time(NULL));
+	resetGame(&staticEntities, &player, &goal);
 
 	Matrix titleTextMatrix;
+	Matrix messageTextMatrix;
 	GLuint font = LoadTexture("font1.png");
 
 	Matrix spriteSheetMatrix;
@@ -282,28 +290,42 @@ int main(int argc, char *argv[])
 		if (gameStatus == 0 || gameStatus == 2 || gameStatus == 3)
 		{
 			viewMatrix.identity();
+			titleTextMatrix.setPosition(-2.75f, .5, 0.0f);
+			messageTextMatrix.setPosition(-2.75f, -.5, 0.0f);
 			program.setModelMatrix(titleTextMatrix);
+
 			if (gameStatus == 0)
+			{
+				DrawText(&program, font, "'Meet your friend at the end!'", .2f, 0.0f);
+				program.setModelMatrix(messageTextMatrix);
 				DrawText(&program, font, "Press enter to begin", .3f, 0.0f);
+			}
 			else if (gameStatus == 2 || gameStatus == 3)
 			{
-				if (gameStatus == 2)
-					DrawText(&program, font, "You Lose - Press enter to quit", .2f, 0.0f);
+				if (gameStatus == 2)	
+					DrawText(&program, font, "You Lose! Press Enter to replay", .2f, 0.0f);
 				else if (gameStatus == 3)
-					DrawText(&program, font, "You Win - Press enter to quit", .2f, 0.0f);
+					DrawText(&program, font, "You Win! Press Enter to replay", .2f, 0.0f);
+				program.setModelMatrix(messageTextMatrix);
+				DrawText(&program, font, "or press Q to quit", .2f, 0.0f);
 
 				while (SDL_PollEvent(&event))
 				{
 					if (keys[SDL_SCANCODE_RETURN])
+					{
+						resetGame(&staticEntities, &player, &goal);
+						gameStatus = 1;
+					}
+					else if (keys[SDL_SCANCODE_Q])
+					{
 						done = true;
+					}
 					else if (event.type == SDL_QUIT || event.type == SDL_WINDOWEVENT_CLOSE)
 					{
 						done = true;
 					}
 				}
 			}
-			titleTextMatrix.setPosition(-2.75f, 0, 0.0f);
-			
 		}
 		else if (gameStatus == 1)
 		{
@@ -327,17 +349,17 @@ int main(int argc, char *argv[])
 			program.setModelMatrix(goal.matrix);
 			DrawSpriteSheetSprite(&program, spriteSheetTexture, 7, spriteCountX, spriteCountY, floorModelVerticies);
 
+			/*
 			//Debug Log
 			program.setModelMatrix(titleTextMatrix);
 			DrawText(&program, font, to_string(player.y), .3f, 0.0f);
-			/*
 			if (player.bottomContact)
 				DrawText(&program, font, "true", .3f, 0.0f);
 			else
 				DrawText(&program, font, "false", .3f, 0.0f);
 			*/
 
-			if (player.y + player.height/2 <= -projectionHeight/2)
+			if (player.y + player.height/2 <= -4)
 				gameStatus = 2;
 			if (player.checkForCollisionWith(&goal))
 				gameStatus = 3;
@@ -346,13 +368,13 @@ int main(int argc, char *argv[])
 			{
 				if (player.xVelocity < 0)
 					player.xVelocity = 0;
-				player.xAcceleration = elapsed * 3;
+				player.xAcceleration = elapsed * 5;
 			}
 			else if (keys[SDL_SCANCODE_LEFT])
 			{
 				if (player.xVelocity > 0)
 					player.xVelocity = 0;
-				player.xAcceleration = -elapsed * 3;
+				player.xAcceleration = -elapsed * 5;
 			}
 			else if (keys == SDL_GetKeyboardState(NULL))
 			{
@@ -371,7 +393,8 @@ int main(int argc, char *argv[])
 			else if (keys[SDL_SCANCODE_SPACE])
 			{
 				//if (player.bottomContact)
-					player.yVelocity = 0.125f;
+				if (player.yVelocity >= -0.005f && player.yVelocity <= 0.005f)
+					player.yVelocity = 0.175f;
 			}
 			else if (event.type == SDL_QUIT || event.type == SDL_WINDOWEVENT_CLOSE)
 			{
