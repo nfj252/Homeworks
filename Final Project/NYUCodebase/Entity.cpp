@@ -26,7 +26,6 @@ Entity::~Entity()
 }
 
 
-
 void Entity::DynamicUpdateRoutine(float elapsed)
 {
 	xVelocity += xAcceleration * elapsed;
@@ -36,9 +35,16 @@ void Entity::DynamicUpdateRoutine(float elapsed)
 	matrix.Translate(xVelocity * elapsed, yVelocity * elapsed, 0.0f);
 }
 
-void Entity::StaticUpdateRoutine(float elapsed)
+void Entity::MissleUpdateRoutine(float elapsed)
 {
-
+	if (x <= -15)
+	{
+		x = 20;
+		y = .5f + -(rand() % 7) / 2.0f;
+		matrix.setPosition(x,y,0);
+	}
+	x += xVelocity * elapsed;
+	matrix.Translate(xVelocity * elapsed, yVelocity * elapsed, 0.0f);
 }
 
 bool Entity::isDirectlyCollidingWith(Entity* other)

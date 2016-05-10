@@ -8,7 +8,6 @@
 #include "ShaderProgram.h"
 #include "Matrix.h"
 #include "FunctionRepository.h"
-#include "LevelDataHolder.h"
 #include <stdlib.h>
 #include <time.h>
 #include <conio.h>
@@ -59,10 +58,12 @@ int main(int argc, char *argv[])
 	Mix_PlayMusic(musicStart, -1);
 
 	Entity player;
+	vector<Entity> missileEntities;
 	vector<Entity> staticEntities;
 	Entity goal;
 	float playerModelVerticies[] = { -.25f, -.25f, .25f, -.25f, .25f, .25f, -.25f, -.25f, .25f, .25f, -.25f, .25f };
 	float blockModelVerticies[] = { -.25f, -.25f, .25f, -.25f, .25f, .25f, -.25f, -.25f, .25f, .25f, -.25f, .25f };
+	float missleModelVerticies[] = { -.25f, -.05f, .25f, -.05f, .25f, .05f, -.25f, -.05f, .25f, .05f, -.25f, .05f };
 	float goalModelVerticies[] = { -.25f, -.25f, .25f, -.25f, .25f, .25f, -.25f, -.25f, .25f, .25f, -.25f, .25f };
 	float backgroundModelVerticies[] = { -20, -10, 20, -10, 20, 10, -20, -10, 20, 10, -20, 10 };
 	float texCoords[] = { 0.0, 1.0, 1.0, 1.0, 1.0, 0.0, 0.0, 1.0, 1.0, 0.0, 0.0, 0.0 };
@@ -124,9 +125,18 @@ int main(int argc, char *argv[])
 		}
 		else if (gameStatus == 3)
 		{
+			viewMatrix.setPosition(-player.x, -player.y, 0);
+
 			program.setModelMatrix(inGameBGTextureMatrix);
 			DrawSpriteSheetSprite(&program, backgroundTexture, 0, 1, 1, backgroundModelVerticies);
 
+			/*
+			titleTextMatrix.setPosition(-10.0f, 0, 0.0f);
+			program.setModelMatrix(titleTextMatrix);
+			ostringstream ss;
+			ss << missileEntities[0].x;
+			DrawText(&program, font, ss.str(), .2f, 0.0f);
+			*/
 			program.setModelMatrix(goal.matrix);
 			DrawSpriteSheetSprite(&program, dynamicSpriteSheetTexture, 79, 30, 30, goalModelVerticies);
 
@@ -137,8 +147,6 @@ int main(int argc, char *argv[])
 			else
 				DrawSpriteSheetSprite(&program, dynamicSpriteSheetTexture, 29, 30, 30, playerModelVerticies);
 			
-			viewMatrix.setPosition(-player.x, -player.y, 0);
-
 			for (unsigned i = 0; i < staticEntities.size(); i++)
 			{
 				program.setModelMatrix(staticEntities[i].matrix);
@@ -146,6 +154,14 @@ int main(int argc, char *argv[])
 				if (player.isDirectlyCollidingWith(&staticEntities[i]))
 					player.handleCollisionWith(&staticEntities[i]);
 			}
+
+			for (unsigned i = 0; i < missileEntities.size(); i++)
+			{
+				program.setModelMatrix(missileEntities[i].matrix);
+				missileEntities[i].MissleUpdateRoutine(elapsed);
+				DrawSpriteSheetSprite(&program, staticSpriteSheetTexture, 20, 10, 5, missleModelVerticies);
+			}
+
 
 			for (unsigned i = 0; i < staticEntities.size(); i++)
 			{
@@ -202,51 +218,25 @@ int main(int argc, char *argv[])
 		while (SDL_PollEvent(&event))
 		{
 			if (event.type == SDL_QUIT || event.type == SDL_WINDOWEVENT_CLOSE)
-			{
 				done = true;
-			}
 			else if (event.type == SDL_KEYDOWN)
 			{
-				if (gameStatus == 0)  //start
+				if (gameStatus == 0 || gameStatus == 1 || gameStatus == 2)  //1 = loss, 2 = win
 				{
 					if (keys[SDL_SCANCODE_RETURN])
 					{
-						Mix_PlayMusic(musicPlaying, -1);
-						initialGameSetup(level, &staticEntities, &player, &goal);
-						Mix_PlayMusic(musicPlaying, -1);
-						gameStatus = 3;
-					}
-					else if (keys[SDL_SCANCODE_Q] || event.type == SDL_QUIT || event.type == SDL_WINDOWEVENT_CLOSE)
-					{
-						done = true;
-					}
-				}
-				else if (gameStatus == 1)  //lose
-				{
-					if (keys[SDL_SCANCODE_RETURN])
-					{
-						resetGame(&staticEntities, &player, &goal);
+					    if(gameStatus == 2)
+						{ 
+							level++;
+							if (level > 2)
+								level = 0;
+						}
+						initialGameSetup(level, &staticEntities, &missileEntities, &player, &goal);
 						Mix_PlayMusic(musicPlaying, -1);
 						gameStatus = 3;
 					}
-					else if (keys[SDL_SCANCODE_Q] || event.type == SDL_QUIT || event.type == SDL_WINDOWEVENT_CLOSE)
-					{
+					else if (keys[SDL_SCANCODE_Q])
 						done = true;
-					}
-				}
-				else if (gameStatus == 2)  //win
-				{
-					if (keys[SDL_SCANCODE_RETURN])
-					{
-						level++;
-						initialGameSetup(level, &staticEntities, &player, &goal);
-						Mix_PlayMusic(musicPlaying, -1);
-						gameStatus = 3;
-					}
-					else if (keys[SDL_SCANCODE_Q] || event.type == SDL_QUIT || event.type == SDL_WINDOWEVENT_CLOSE)
-					{
-						done = true;
-					}
 				}
 				else if (gameStatus == 3)
 				{

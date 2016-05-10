@@ -75,6 +75,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="Entity.cpp" />
+    <ClCompile Include="LevelData.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="Matrix.cpp" />
     <ClCompile Include="ShaderProgram.cpp" />
@@ -82,7 +83,7 @@
   <ItemGroup>
     <ClInclude Include="Entity.h" />
     <ClInclude Include="FunctionRepository.h" />
-    <ClInclude Include="LevelDataHolder.h" />
+    <ClInclude Include="LevelData.h" />
     <ClInclude Include="Matrix.h" />
     <ClInclude Include="ShaderProgram.h" />
   </ItemGroup>

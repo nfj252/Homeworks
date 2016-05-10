@@ -4,6 +4,7 @@
 #include "ShaderProgram.h"
 #include "Matrix.h"
 #include "Entity.h"
+#include "LevelData.h"
 #include <stdlib.h>
 #include <time.h>
 #include <string>
@@ -77,22 +78,38 @@ float lerp(float v0, float v1, float t)
 	return (1.0f - t)*v0 + t*v1;
 }
 
-void initialGameSetup(unsigned level, vector<Entity>* staticContainer, Entity* thePlayer, Entity* theGoal)
+void initialGameSetup(unsigned level, vector<Entity>* staticContainer, vector<Entity>* missileContainer, Entity* thePlayer, Entity* theGoal)
 {
+	LevelData::setUpValues();
 	int seed = static_cast<int>(time(0));
 	srand(seed);
-	for (float i = -10; i < 15; i += .5f)
+	staticContainer->clear();
+	missileContainer->clear();
+
+	for (float i = -10; i < -10 + LevelData::numberOfTiles[level] / 2; i += .5f)
 	{
-		for (int j = 0; j < 1; j++)
-		{
-			Entity floor;
-			floor.width = .5f;
-			floor.height = .5f;
-			floor.x = i;
+		Entity floor;
+		floor.width = .5f;
+		floor.height = .5f;
+		floor.x = i;
+		if (i == -10)
+			floor.y = 0;
+		else
 			floor.y = -(rand() % 7) / 2.0f;
-			floor.matrix.setPosition(floor.x, floor.y, 0);
-			staticContainer->push_back(floor);
-		}
+		floor.matrix.setPosition(floor.x, floor.y, 0);
+		staticContainer->push_back(floor);
+	}
+
+	for (float i = 0; i < LevelData::numberOfMissiles[level]; i++)
+	{
+		Entity missile;
+		missile.width = .5f;
+		missile.height = .1f;
+		missile.x = (rand() % 30);
+		missile.y = .5f + -(rand() % 7) / 2.0f;
+		missile.xVelocity = -4;
+		missile.matrix.setPosition(missile.x, missile.y, 0);
+		missileContainer->push_back(missile);
 	}
 
 	thePlayer->x = (*staticContainer)[0].x;
@@ -101,22 +118,5 @@ void initialGameSetup(unsigned level, vector<Entity>* staticContainer, Entity* t
 
 	theGoal->x = (*staticContainer)[staticContainer->size() - 1].x;
 	theGoal->y = (*staticContainer)[staticContainer->size() - 1].y + (*staticContainer)[staticContainer->size() - 1].height / 2 + theGoal->height / 2;
-	theGoal->matrix.setPosition(theGoal->x, theGoal->y, 0);
-}
-
-void resetGame(vector<Entity>* staticContainer, Entity* thePlayer, Entity* theGoal)
-{
-	for (float i = 0; i < 50; i++)
-	{
-		for (int j = 0; j < 1; j++)
-		{
-			(*staticContainer)[i].y = -(rand() % 7) / 2.0f;
-			(*staticContainer)[i].matrix.setPosition((*staticContainer)[i].x, (*staticContainer)[i].y, 0);
-		}
-	}
-	thePlayer->x = (*staticContainer)[0].x;
-	thePlayer->y = (*staticContainer)[0].y + (*staticContainer)[0].height/2 + thePlayer->height/2;
-	thePlayer->matrix.setPosition(thePlayer->x, thePlayer->y, 0);
-	theGoal->y = (*staticContainer)[staticContainer->size() - 1].y + (*staticContainer)[staticContainer->size() - 1].height/2 + theGoal->height/2;
 	theGoal->matrix.setPosition(theGoal->x, theGoal->y, 0);
 }

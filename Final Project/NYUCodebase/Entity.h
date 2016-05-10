@@ -29,7 +29,7 @@ public:
 	Entity();
 	~Entity();
 	void DynamicUpdateRoutine(float elapsed);
-	void StaticUpdateRoutine(float elapsed);
+	void MissleUpdateRoutine(float elapsed);
 	bool isDirectlyCollidingWith(Entity* other);
 	void checkForDirectionalCollision(Entity* other, string direction);
 	void handleCollisionWith(Entity* other);
