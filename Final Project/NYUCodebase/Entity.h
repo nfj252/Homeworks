@@ -23,11 +23,13 @@ public:
 	bool topContact;
 	bool leftContact;
 	bool rightContact;
+	float gravity;
 	Matrix matrix;
 
 	Entity();
 	~Entity();
-	void setDimentions(float iWidth, float iHeight);
+	void DynamicUpdateRoutine(float elapsed);
+	void StaticUpdateRoutine(float elapsed);
 	bool isDirectlyCollidingWith(Entity* other);
 	void checkForDirectionalCollision(Entity* other, string direction);
 	void handleCollisionWith(Entity* other);

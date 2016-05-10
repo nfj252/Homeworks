@@ -82,6 +82,7 @@
   <ItemGroup>
     <ClInclude Include="Entity.h" />
     <ClInclude Include="FunctionRepository.h" />
+    <ClInclude Include="LevelDataHolder.h" />
     <ClInclude Include="Matrix.h" />
     <ClInclude Include="ShaderProgram.h" />
   </ItemGroup>

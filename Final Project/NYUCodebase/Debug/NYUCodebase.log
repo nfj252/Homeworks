@@ -1,18 +1,19 @@
-﻿Build started 4/29/2016 1:36:50 AM.
-     1>Project "C:\Users\Nick\Documents\Visual Studio 2013\Projects\Game Programming Work\Final Project\NYUCodebase\NYUCodebase.vcxproj" on node 2 (Build target(s)).
+﻿Build started 5/9/2016 8:49:36 PM.
+     1>Project "C:\Users\Nick\Documents\GitHub\Github Homework\Final Project\NYUCodebase\NYUCodebase.vcxproj" on node 2 (Build target(s)).
      1>ClCompile:
          C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\bin\CL.exe /c /IC:\SDL2\include /IC:\SDL2_image\include /IC:\glew\include /IC:\SDL2_mixer\include /ZI /nologo /W3 /WX- /sdl /Od /Oy- /D _WINDOWS /D _MBCS /D _MBCS /Gm /EHsc /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Fo"Debug\\" /Fd"Debug\vc120.pdb" /Gd /TP /analyze- /errorReport:prompt main.cpp
          main.cpp
-     1>c:\users\nick\documents\visual studio 2013\projects\game programming work\final project\nyucodebase\functionrepository.h(117): warning C4244: 'argument' : conversion from 'float' to 'unsigned int', possible loss of data
-     1>c:\users\nick\documents\visual studio 2013\projects\game programming work\final project\nyucodebase\functionrepository.h(118): warning C4244: 'argument' : conversion from 'float' to 'unsigned int', possible loss of data
+     1>c:\users\nick\documents\github\github homework\final project\nyucodebase\functionrepository.h(113): warning C4244: 'argument' : conversion from 'float' to 'unsigned int', possible loss of data
+     1>c:\users\nick\documents\github\github homework\final project\nyucodebase\functionrepository.h(114): warning C4244: 'argument' : conversion from 'float' to 'unsigned int', possible loss of data
+     1>c:\users\nick\documents\github\github homework\final project\nyucodebase\leveldataholder.h(5): warning C4091: 'static ' : ignored on left of 'LevelDataHolder' when no variable is declared
        Link:
-         C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\bin\link.exe /ERRORREPORT:PROMPT /OUT:"C:\Users\Nick\Documents\Visual Studio 2013\Projects\Game Programming Work\Final Project\Debug\NYUCodebase.exe" /INCREMENTAL /NOLOGO /LIBPATH:C:\SDL2_mixer\lib\x86 /LIBPATH:C:\SDL2\lib\x86 /LIBPATH:C:\SDL2_image\lib\x86 /LIBPATH:C:\glew\lib\Release\Win32 SDL2.lib SDL2_mixer.lib glew32.lib SDL2main.lib SDL2_image.lib OpenGL32.lib /MANIFEST /MANIFESTUAC:"level='asInvoker' uiAccess='false'" /manifest:embed /DEBUG /PDB:"C:\Users\Nick\Documents\Visual Studio 2013\Projects\Game Programming Work\Final Project\Debug\NYUCodebase.pdb" /SUBSYSTEM:WINDOWS /TLBID:1 /DYNAMICBASE /NXCOMPAT /IMPLIB:"C:\Users\Nick\Documents\Visual Studio 2013\Projects\Game Programming Work\Final Project\Debug\NYUCodebase.lib" /MACHINE:X86 Debug\Entity.obj
+         C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\bin\link.exe /ERRORREPORT:PROMPT /OUT:"C:\Users\Nick\Documents\GitHub\Github Homework\Final Project\Debug\NYUCodebase.exe" /INCREMENTAL /NOLOGO /LIBPATH:C:\SDL2_mixer\lib\x86 /LIBPATH:C:\SDL2\lib\x86 /LIBPATH:C:\SDL2_image\lib\x86 /LIBPATH:C:\glew\lib\Release\Win32 SDL2.lib SDL2_mixer.lib glew32.lib SDL2main.lib SDL2_image.lib OpenGL32.lib /MANIFEST /MANIFESTUAC:"level='asInvoker' uiAccess='false'" /manifest:embed /DEBUG /PDB:"C:\Users\Nick\Documents\GitHub\Github Homework\Final Project\Debug\NYUCodebase.pdb" /SUBSYSTEM:WINDOWS /TLBID:1 /DYNAMICBASE /NXCOMPAT /IMPLIB:"C:\Users\Nick\Documents\GitHub\Github Homework\Final Project\Debug\NYUCodebase.lib" /MACHINE:X86 Debug\Entity.obj
          Debug\main.obj
          Debug\Matrix.obj
          Debug\ShaderProgram.obj
-         NYUCodebase.vcxproj -> C:\Users\Nick\Documents\Visual Studio 2013\Projects\Game Programming Work\Final Project\Debug\NYUCodebase.exe
-     1>Done Building Project "C:\Users\Nick\Documents\Visual Studio 2013\Projects\Game Programming Work\Final Project\NYUCodebase\NYUCodebase.vcxproj" (Build target(s)).
+         NYUCodebase.vcxproj -> C:\Users\Nick\Documents\GitHub\Github Homework\Final Project\Debug\NYUCodebase.exe
+     1>Done Building Project "C:\Users\Nick\Documents\GitHub\Github Homework\Final Project\NYUCodebase\NYUCodebase.vcxproj" (Build target(s)).
 
 Build succeeded.
 
-Time Elapsed 00:00:01.06
+Time Elapsed 00:00:01.10

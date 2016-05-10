@@ -8,6 +8,7 @@
 #include "ShaderProgram.h"
 #include "Matrix.h"
 #include "FunctionRepository.h"
+#include "LevelDataHolder.h"
 #include <stdlib.h>
 #include <time.h>
 #include <conio.h>
@@ -60,7 +61,6 @@ int main(int argc, char *argv[])
 	Entity player;
 	vector<Entity> staticEntities;
 	Entity goal;
-	initialGameSetup(&staticEntities, &player, &goal);
 	float playerModelVerticies[] = { -.25f, -.25f, .25f, -.25f, .25f, .25f, -.25f, -.25f, .25f, .25f, -.25f, .25f };
 	float blockModelVerticies[] = { -.25f, -.25f, .25f, -.25f, .25f, .25f, -.25f, -.25f, .25f, .25f, -.25f, .25f };
 	float goalModelVerticies[] = { -.25f, -.25f, .25f, -.25f, .25f, .25f, -.25f, -.25f, .25f, .25f, -.25f, .25f };
@@ -69,7 +69,8 @@ int main(int argc, char *argv[])
 
 	Matrix titleTextMatrix;
 	Matrix messageTextMatrix;
-	Matrix backgroundTextureMatrix;
+	Matrix inGameBGTextureMatrix;
+	Matrix titleBGTextureMatrix;
 	GLuint font = LoadTexture("font1.png");
 
 	GLuint dynamicSpriteSheetTexture = LoadTexture("master-spritesheet.png"); //30 x 30
@@ -77,7 +78,7 @@ int main(int argc, char *argv[])
 	GLuint backgroundTexture = LoadTexture("bg_shroom.png");
 	
 	int gameStatus = 0;
-	float world_gravity = 7.5f;
+	int level = 1;
 	float ticks = 0.0f;
 	float lastFrameTicks = 0.0f;
 	float elapsed = 0.0f;
@@ -98,7 +99,7 @@ int main(int argc, char *argv[])
 		elapsed = ticks - lastFrameTicks;
 		lastFrameTicks = ticks;
 
-		if (gameStatus == 0 || gameStatus == 2 || gameStatus == 3)
+		if (gameStatus == 0 || gameStatus == 1 || gameStatus == 2)
 		{
 			viewMatrix.identity();
 			titleTextMatrix.setPosition(-2.75f, .5, 0.0f);
@@ -109,56 +110,35 @@ int main(int argc, char *argv[])
 			{
 				DrawText(&program, font, "'Meet your friend at the end!'", .2f, 0.0f);
 				program.setModelMatrix(messageTextMatrix);
-				DrawText(&program, font, "Press enter to begin", .3f, 0.0f);
+				DrawText(&program, font, "Press enter to begin", .2f, 0.0f);
 			}
-			else if (gameStatus == 2 || gameStatus == 3)
+			else if (gameStatus == 1 || gameStatus == 2)
 			{
-				if (gameStatus == 2)	
+				if (gameStatus == 1)	
 					DrawText(&program, font, "You Lose! Press Enter to replay", .2f, 0.0f);
-				else if (gameStatus == 3)
-					DrawText(&program, font, "You Win! Press Enter to replay", .2f, 0.0f);
+				else if (gameStatus == 2)
+					DrawText(&program, font, "You Win! Press Enter to Proceed", .2f, 0.0f);
 				program.setModelMatrix(messageTextMatrix);
 				DrawText(&program, font, "or press Q to quit", .2f, 0.0f);
-
-				while (SDL_PollEvent(&event))
-				{
-					if (keys[SDL_SCANCODE_RETURN])
-					{
-						resetGame(&staticEntities, &player, &goal);
-						Mix_PlayMusic(musicPlaying, -1);
-						gameStatus = 1;
-					}
-					else if (keys[SDL_SCANCODE_Q])
-					{
-						done = true;
-					}
-					else if (event.type == SDL_QUIT || event.type == SDL_WINDOWEVENT_CLOSE)
-					{
-						done = true;
-					}
-				}
 			}
 		}
-		else if (gameStatus == 1)
+		else if (gameStatus == 3)
 		{
-			program.setModelMatrix(backgroundTextureMatrix);
+			program.setModelMatrix(inGameBGTextureMatrix);
 			DrawSpriteSheetSprite(&program, backgroundTexture, 0, 1, 1, backgroundModelVerticies);
 
 			program.setModelMatrix(goal.matrix);
 			DrawSpriteSheetSprite(&program, dynamicSpriteSheetTexture, 79, 30, 30, goalModelVerticies);
 
 			program.setModelMatrix(player.matrix);
+			player.DynamicUpdateRoutine(elapsed);
 			if (player.bottomContact)
 				DrawSpriteSheetSprite(&program, dynamicSpriteSheetTexture, 20, 30, 30, playerModelVerticies);
 			else
 				DrawSpriteSheetSprite(&program, dynamicSpriteSheetTexture, 29, 30, 30, playerModelVerticies);
-			player.xVelocity += player.xAcceleration * elapsed;
-			player.yVelocity -= world_gravity * elapsed;
-			player.x += player.xVelocity * elapsed;
-			player.y += player.yVelocity * elapsed;
-			player.matrix.Translate(player.xVelocity * elapsed, player.yVelocity * elapsed, 0.0f);
-			viewMatrix.setPosition(-player.x, -player.y, 0);
 			
+			viewMatrix.setPosition(-player.x, -player.y, 0);
+
 			for (unsigned i = 0; i < staticEntities.size(); i++)
 			{
 				program.setModelMatrix(staticEntities[i].matrix);
@@ -176,12 +156,13 @@ int main(int argc, char *argv[])
 			
 			if (player.y + player.height / 2 <= -4)
 			{
-				gameStatus = 2;
+				gameStatus = 1;
 				Mix_PlayMusic(musicLose, -1);
 			}
+
 			if (player.isDirectlyCollidingWith(&goal))
 			{
-				gameStatus = 3;
+				gameStatus = 2;
 				Mix_PlayMusic(musicWin, -1);
 			}
 			
@@ -211,7 +192,6 @@ int main(int argc, char *argv[])
 					player.xVelocity = 0;
 				player.xAcceleration = -2.5f;
 			}
-		
 			else if (keys == SDL_GetKeyboardState(NULL))
 			{
 				player.xAcceleration = 0;
@@ -224,29 +204,63 @@ int main(int argc, char *argv[])
 			if (event.type == SDL_QUIT || event.type == SDL_WINDOWEVENT_CLOSE)
 			{
 				done = true;
-
 			}
 			else if (event.type == SDL_KEYDOWN)
 			{
-				if (event.key.keysym.scancode == SDL_SCANCODE_RETURN)
+				if (gameStatus == 0)  //start
 				{
-					if (gameStatus == 0)
+					if (keys[SDL_SCANCODE_RETURN])
 					{
 						Mix_PlayMusic(musicPlaying, -1);
-						gameStatus++;
+						initialGameSetup(level, &staticEntities, &player, &goal);
+						Mix_PlayMusic(musicPlaying, -1);
+						gameStatus = 3;
+					}
+					else if (keys[SDL_SCANCODE_Q] || event.type == SDL_QUIT || event.type == SDL_WINDOWEVENT_CLOSE)
+					{
+						done = true;
 					}
 				}
-				else if (event.key.keysym.scancode == SDL_SCANCODE_SPACE)
+				else if (gameStatus == 1)  //lose
 				{
-					if (player.bottomContact)
+					if (keys[SDL_SCANCODE_RETURN])
 					{
-						Mix_PlayChannel(-1, Mix_LoadWAV("jumpSound.wav"), 0);
-						player.yVelocity = 5.0f;
+						resetGame(&staticEntities, &player, &goal);
+						Mix_PlayMusic(musicPlaying, -1);
+						gameStatus = 3;
+					}
+					else if (keys[SDL_SCANCODE_Q] || event.type == SDL_QUIT || event.type == SDL_WINDOWEVENT_CLOSE)
+					{
+						done = true;
+					}
+				}
+				else if (gameStatus == 2)  //win
+				{
+					if (keys[SDL_SCANCODE_RETURN])
+					{
+						level++;
+						initialGameSetup(level, &staticEntities, &player, &goal);
+						Mix_PlayMusic(musicPlaying, -1);
+						gameStatus = 3;
+					}
+					else if (keys[SDL_SCANCODE_Q] || event.type == SDL_QUIT || event.type == SDL_WINDOWEVENT_CLOSE)
+					{
+						done = true;
+					}
+				}
+				else if (gameStatus == 3)
+				{
+					if (event.key.keysym.scancode == SDL_SCANCODE_SPACE)
+					{
+						if (player.bottomContact)
+						{
+							Mix_PlayChannel(-1, Mix_LoadWAV("jumpSound.wav"), 0);
+							player.yVelocity = 4.0f;
+						}
 					}
 				}
 			}
 		}
-
 		glDisableVertexAttribArray(program.positionAttribute);
 		glDisableVertexAttribArray(program.texCoordAttribute);
 		SDL_GL_SwapWindow(displayWindow);

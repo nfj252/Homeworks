@@ -77,7 +77,7 @@ float lerp(float v0, float v1, float t)
 	return (1.0f - t)*v0 + t*v1;
 }
 
-void initialGameSetup(vector<Entity>* staticContainer, Entity* thePlayer, Entity* theGoal)
+void initialGameSetup(unsigned level, vector<Entity>* staticContainer, Entity* thePlayer, Entity* theGoal)
 {
 	int seed = static_cast<int>(time(0));
 	srand(seed);
@@ -95,14 +95,10 @@ void initialGameSetup(vector<Entity>* staticContainer, Entity* thePlayer, Entity
 		}
 	}
 
-	thePlayer->width = .5f;
-	thePlayer->height = .5f;
-	thePlayer->x = -10.0f;
+	thePlayer->x = (*staticContainer)[0].x;
 	thePlayer->y = (*staticContainer)[0].y + (*staticContainer)[0].height / 2 + thePlayer->height / 2;
 	thePlayer->matrix.setPosition(thePlayer->x, thePlayer->y, 0);
 
-	theGoal->width = .5f;
-	theGoal->height = .5f;
 	theGoal->x = (*staticContainer)[staticContainer->size() - 1].x;
 	theGoal->y = (*staticContainer)[staticContainer->size() - 1].y + (*staticContainer)[staticContainer->size() - 1].height / 2 + theGoal->height / 2;
 	theGoal->matrix.setPosition(theGoal->x, theGoal->y, 0);
@@ -118,7 +114,7 @@ void resetGame(vector<Entity>* staticContainer, Entity* thePlayer, Entity* theGo
 			(*staticContainer)[i].matrix.setPosition((*staticContainer)[i].x, (*staticContainer)[i].y, 0);
 		}
 	}
-	thePlayer->x = -10.0f;
+	thePlayer->x = (*staticContainer)[0].x;
 	thePlayer->y = (*staticContainer)[0].y + (*staticContainer)[0].height/2 + thePlayer->height/2;
 	thePlayer->matrix.setPosition(thePlayer->x, thePlayer->y, 0);
 	theGoal->y = (*staticContainer)[staticContainer->size() - 1].y + (*staticContainer)[staticContainer->size() - 1].height/2 + theGoal->height/2;

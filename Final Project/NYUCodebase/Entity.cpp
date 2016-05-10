@@ -4,8 +4,8 @@ Entity::Entity()
 {
 	x = 0;
 	y = 0;
-	width = 0;
-	height = 0;
+	width = .5;
+	height = .5;
 	xVelocity = 0;
     yVelocity = 0;
 	xAcceleration = 0;
@@ -17,9 +17,26 @@ Entity::Entity()
 	topContact = false;
 	leftContact = false;
 	rightContact = false;
+	gravity = 7.5;
 }
 
 Entity::~Entity()
+{
+
+}
+
+
+
+void Entity::DynamicUpdateRoutine(float elapsed)
+{
+	xVelocity += xAcceleration * elapsed;
+	yVelocity -= gravity * elapsed;
+	x += xVelocity * elapsed;
+	y += yVelocity * elapsed;
+	matrix.Translate(xVelocity * elapsed, yVelocity * elapsed, 0.0f);
+}
+
+void Entity::StaticUpdateRoutine(float elapsed)
 {
 
 }
