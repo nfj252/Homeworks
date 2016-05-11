@@ -10,6 +10,6 @@ void LevelData::setUpValues()
 	numberOfTiles[2] = 80;
 	
 	numberOfMissiles[0] = 0;
-	numberOfMissiles[1] = 20;
-	numberOfMissiles[2] = 40;
+	numberOfMissiles[1] = 10;
+	numberOfMissiles[2] = 20;
 }

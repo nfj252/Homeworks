@@ -131,12 +131,14 @@ int main(int argc, char *argv[])
 			DrawSpriteSheetSprite(&program, backgroundTexture, 0, 1, 1, backgroundModelVerticies);
 
 			/*
-			titleTextMatrix.setPosition(-10.0f, 0, 0.0f);
+			titleTextMatrix.setPosition(-10.0f, .5, 0.0f);
 			program.setModelMatrix(titleTextMatrix);
 			ostringstream ss;
-			ss << missileEntities[0].x;
+			ss << player.leftContact;
 			DrawText(&program, font, ss.str(), .2f, 0.0f);
 			*/
+
+
 			program.setModelMatrix(goal.matrix);
 			DrawSpriteSheetSprite(&program, dynamicSpriteSheetTexture, 79, 30, 30, goalModelVerticies);
 
@@ -158,18 +160,46 @@ int main(int argc, char *argv[])
 			for (unsigned i = 0; i < missileEntities.size(); i++)
 			{
 				program.setModelMatrix(missileEntities[i].matrix);
+				missileEntities[i].xSpawnPoint = player.x + projectionWidth/2 + missileEntities[i].width/2;
 				missileEntities[i].MissleUpdateRoutine(elapsed);
-				DrawSpriteSheetSprite(&program, staticSpriteSheetTexture, 20, 10, 5, missleModelVerticies);
-			}
+				DrawSpriteSheetSprite(&program, staticSpriteSheetTexture, 20, 10, 15, missleModelVerticies);
 
+				if (player.isDirectlyCollidingWith(&missileEntities[i]))
+				{
+					if (!player.leftContact)
+						player.handleCollisionWith(&missileEntities[i]);
+					else
+					{
+						gameStatus = 1;
+						Mix_PlayMusic(musicLose, -1);
+					}
+				}
+			}
 
 			for (unsigned i = 0; i < staticEntities.size(); i++)
 			{
-				player.checkForDirectionalCollision(&staticEntities[i], "bottom");
+				player.checkForDirectionalCollision(&staticEntities[i], "bottom", .001f);
 				if (player.bottomContact)
 					break;
 			}
+
+			for (unsigned i = 0; i < staticEntities.size(); i++)
+			{
+				player.checkForDirectionalCollision(&staticEntities[i], "left", .3f);
+				if (player.leftContact)
+					break;
+			}
 			
+			if (!player.bottomContact)
+			{
+				for (unsigned i = 0; i < missileEntities.size(); i++)
+				{
+					player.checkForDirectionalCollision(&missileEntities[i], "bottom", .001f);
+					if (player.bottomContact)
+						break;
+				}
+			}
+
 			if (player.y + player.height / 2 <= -4)
 			{
 				gameStatus = 1;
@@ -193,7 +223,7 @@ int main(int argc, char *argv[])
 
 				if (player.xVelocity < 0)
 					player.xVelocity = 0;
-				player.xAcceleration = 2.5f;
+				player.xAcceleration = 3;
 			}
 			else if (keys[SDL_SCANCODE_LEFT])
 			{
@@ -206,7 +236,7 @@ int main(int argc, char *argv[])
 
 				if (player.xVelocity > 0)
 					player.xVelocity = 0;
-				player.xAcceleration = -2.5f;
+				player.xAcceleration = -3;
 			}
 			else if (keys == SDL_GetKeyboardState(NULL))
 			{

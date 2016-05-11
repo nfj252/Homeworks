@@ -29,6 +29,10 @@ Entity::~Entity()
 void Entity::DynamicUpdateRoutine(float elapsed)
 {
 	xVelocity += xAcceleration * elapsed;
+	if (xVelocity >= 2.5f)
+		xVelocity = 2.5f;
+	else if (xVelocity <= -2.5f)
+		xVelocity = -2.5f;
 	yVelocity -= gravity * elapsed;
 	x += xVelocity * elapsed;
 	y += yVelocity * elapsed;
@@ -39,7 +43,7 @@ void Entity::MissleUpdateRoutine(float elapsed)
 {
 	if (x <= -15)
 	{
-		x = 20;
+		x = xSpawnPoint;
 		y = .5f + -(rand() % 7) / 2.0f;
 		matrix.setPosition(x,y,0);
 	}
@@ -60,11 +64,11 @@ bool Entity::isDirectlyCollidingWith(Entity* other)
 	}
 }
 
-void Entity::checkForDirectionalCollision(Entity* other, string direction)
+void Entity::checkForDirectionalCollision(Entity* other, string direction, float offset)
 {
 	if (direction == "bottom")
 	{
-		if (y < other->y + other->height * 1.1f && y > other->y && abs(x - other->x) < other->width)
+		if (y - height / 2 < other->y + other->height + .01f && y > other->y && abs(x - other->x) < (other->width + width) / 2 - offset)
 		{
 			bottomContact = true;
 		}
@@ -73,7 +77,7 @@ void Entity::checkForDirectionalCollision(Entity* other, string direction)
 	}
 	else if (direction == "top")
 	{
-		if (y > other->y - other->height * 1.1f && y < other->y && abs(x - other->x) < other->width)
+		if (y + height / 2 > other->y - other->height - .01f && y < other->y && abs(x - other->x) < (other->width + width) / 2 - offset)
 		{
 			topContact = true;
 		}
@@ -82,7 +86,7 @@ void Entity::checkForDirectionalCollision(Entity* other, string direction)
 	}
 	else if (direction == "left")
 	{
-		if (x > other->x - other->width * 1.1f && x < other->x && abs(y - other->y) < other->height)
+		if (x - width / 2 < other->x + other->width + .01f && x > other->x && abs(y - other->y) < (other->height + height) / 2 - offset)
 		{
 			leftContact = true;
 		}
@@ -91,7 +95,7 @@ void Entity::checkForDirectionalCollision(Entity* other, string direction)
 	}
 	else if (direction == "right")
 	{
-		if (x < other->x + other->width * 1.1f && x > other->x && abs(y - other->y) < other->height)
+		if (x + width / 2 > other->x - other->width - .01f && x < other->x && abs(y - other->y) < (other->height + height) / 2 - offset)
 		{
 			rightContact = true;
 		}
@@ -108,14 +112,14 @@ void Entity::handleCollisionWith(Entity* other)
 		if (y > other->y)
 		{
 			float YPenetration = abs((y - height / 2) - (other->y + other->height / 2));
-			y += YPenetration + .001f;
-			matrix.Translate(0, YPenetration + .001f, 0);
+			y += YPenetration + .0001f;
+			matrix.Translate(0, YPenetration + .0001f, 0);
 		}
 		if (y < other->y)
 		{
 			float YPenetration = abs((y + height / 2) - (other->y - other->height / 2));
-			y -= (YPenetration + .001f);
-			matrix.Translate(0, -YPenetration - .001f, 0);
+			y -= (YPenetration + .0001f);
+			matrix.Translate(0, -YPenetration - .0001f, 0);
 		}
 	}
 
@@ -125,14 +129,14 @@ void Entity::handleCollisionWith(Entity* other)
 		if (x > other->x)
 		{
 			float XPenetration = abs((x - width / 2) - (other->x + other->width / 2));
-			x += XPenetration + .001f;
-			matrix.Translate(XPenetration + .001f, 0, 0);
+			x += XPenetration + .0001f;
+			matrix.Translate(XPenetration + .0001f, 0, 0);
 		}
 		if (x < other->x)
 		{
 			float XPenetration = abs((x + width / 2) - (other->x - other->width / 2));
-			x -= (XPenetration + .001f);
-			matrix.Translate(-XPenetration - .001f, 0, 0);
+			x -= (XPenetration + .0001f);
+			matrix.Translate(-XPenetration - .0001f, 0, 0);
 		}
 	}
 }

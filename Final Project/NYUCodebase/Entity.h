@@ -24,6 +24,7 @@ public:
 	bool leftContact;
 	bool rightContact;
 	float gravity;
+	float xSpawnPoint;
 	Matrix matrix;
 
 	Entity();
@@ -31,7 +32,7 @@ public:
 	void DynamicUpdateRoutine(float elapsed);
 	void MissleUpdateRoutine(float elapsed);
 	bool isDirectlyCollidingWith(Entity* other);
-	void checkForDirectionalCollision(Entity* other, string direction);
+	void checkForDirectionalCollision(Entity* other, string direction, float offset);
 	void handleCollisionWith(Entity* other);
 };
 
