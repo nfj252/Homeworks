@@ -17,7 +17,7 @@ Entity::Entity()
 	topContact = false;
 	leftContact = false;
 	rightContact = false;
-	gravity = 7.5;
+	gravity = -10;
 }
 
 Entity::~Entity()
@@ -33,7 +33,7 @@ void Entity::DynamicUpdateRoutine(float elapsed)
 		xVelocity = 2.5f;
 	else if (xVelocity <= -2.5f)
 		xVelocity = -2.5f;
-	yVelocity -= gravity * elapsed;
+	yVelocity += gravity * elapsed;
 	x += xVelocity * elapsed;
 	y += yVelocity * elapsed;
 	matrix.Translate(xVelocity * elapsed, yVelocity * elapsed, 0.0f);
@@ -44,9 +44,26 @@ void Entity::MissleUpdateRoutine(float elapsed)
 	if (x <= -15)
 	{
 		x = xSpawnPoint;
-		y = .5f + -(rand() % 7) / 2.0f;
+		y = .5f + -(rand() % 8) / 2.0f;
 		matrix.setPosition(x,y,0);
 	}
+	x += xVelocity * elapsed;
+	matrix.Translate(xVelocity * elapsed, yVelocity * elapsed, 0.0f);
+}
+
+void Entity::RainDropUpdateRoutine(float elapsed)
+{
+	if (y <= -5)
+	{
+		x = xSpawnPoint + (rand() % 26) / 2.0f;
+		y = ySpawnPoint;
+		yVelocity = 0;
+		matrix.setPosition(x, y, 0);
+	}
+	if ((leftContact || rightContact) && bottomContact)
+		yVelocity = 3;
+	yVelocity += gravity * elapsed;
+	y += yVelocity * elapsed;
 	x += xVelocity * elapsed;
 	matrix.Translate(xVelocity * elapsed, yVelocity * elapsed, 0.0f);
 }
@@ -68,37 +85,29 @@ void Entity::checkForDirectionalCollision(Entity* other, string direction, float
 {
 	if (direction == "bottom")
 	{
-		if (y - height / 2 < other->y + other->height + .01f && y > other->y && abs(x - other->x) < (other->width + width) / 2 - offset)
-		{
+		if (y - height / 2 < other->y + other->height / 2 + offset && y > other->y && abs(x - other->x) < (other->width + width) / 2 - offset)
 			bottomContact = true;
-		}
 		else
 			bottomContact = false;
 	}
 	else if (direction == "top")
 	{
-		if (y + height / 2 > other->y - other->height - .01f && y < other->y && abs(x - other->x) < (other->width + width) / 2 - offset)
-		{
+		if (y + height / 2 > other->y - other->height / 2 - offset && y < other->y && abs(x - other->x) < (other->width + width) / 2 - offset)
 			topContact = true;
-		}
 		else
 			topContact = false;
 	}
 	else if (direction == "left")
 	{
-		if (x - width / 2 < other->x + other->width + .01f && x > other->x && abs(y - other->y) < (other->height + height) / 2 - offset)
-		{
+		if (x - width / 2 < other->x + other->width / 2 + offset && x > other->x && abs(y - other->y) < (other->height + height) / 2 - offset)
 			leftContact = true;
-		}
 		else
 			leftContact = false;
 	}
 	else if (direction == "right")
 	{
-		if (x + width / 2 > other->x - other->width - .01f && x < other->x && abs(y - other->y) < (other->height + height) / 2 - offset)
-		{
+		if (x + width / 2 > other->x - other->width / 2 - offset && x < other->x && abs(y - other->y) < (other->height + height) / 2 - offset)
 			rightContact = true;
-		}
 		else
 			rightContact = false;
 	}

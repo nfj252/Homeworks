@@ -59,11 +59,13 @@ int main(int argc, char *argv[])
 
 	Entity player;
 	vector<Entity> missileEntities;
+	vector<Entity> rainDropEntities;
 	vector<Entity> staticEntities;
 	Entity goal;
 	float playerModelVerticies[] = { -.25f, -.25f, .25f, -.25f, .25f, .25f, -.25f, -.25f, .25f, .25f, -.25f, .25f };
 	float blockModelVerticies[] = { -.25f, -.25f, .25f, -.25f, .25f, .25f, -.25f, -.25f, .25f, .25f, -.25f, .25f };
-	float missleModelVerticies[] = { -.25f, -.05f, .25f, -.05f, .25f, .05f, -.25f, -.05f, .25f, .05f, -.25f, .05f };
+	float missleModelVerticies[] = { -.25f, -.075f, .25f, -.075f, .25f, .075f, -.25f, -.075f, .25f, .075f, -.25f, .075f };
+	float rainDropsModelVerticies[] = { -.15f, -.2f, .15f, -.2f, .15f, .2f, -.15f, -.2f, .15f, .2f, -.15f, .2f };
 	float goalModelVerticies[] = { -.25f, -.25f, .25f, -.25f, .25f, .25f, -.25f, -.25f, .25f, .25f, -.25f, .25f };
 	float backgroundModelVerticies[] = { -20, -10, 20, -10, 20, 10, -20, -10, 20, 10, -20, 10 };
 	float texCoords[] = { 0.0, 1.0, 1.0, 1.0, 1.0, 0.0, 0.0, 1.0, 1.0, 0.0, 0.0, 0.0 };
@@ -79,7 +81,7 @@ int main(int argc, char *argv[])
 	GLuint backgroundTexture = LoadTexture("bg_shroom.png");
 	
 	int gameStatus = 0;
-	int level = 1;
+	int level = 2;
 	float ticks = 0.0f;
 	float lastFrameTicks = 0.0f;
 	float elapsed = 0.0f;
@@ -131,10 +133,10 @@ int main(int argc, char *argv[])
 			DrawSpriteSheetSprite(&program, backgroundTexture, 0, 1, 1, backgroundModelVerticies);
 
 			/*
-			titleTextMatrix.setPosition(-10.0f, .5, 0.0f);
+			titleTextMatrix.setPosition(player.x, player.y + 1, 0.0f);
 			program.setModelMatrix(titleTextMatrix);
 			ostringstream ss;
-			ss << player.leftContact;
+			ss << rainDropEntities[0].yVelocity;
 			DrawText(&program, font, ss.str(), .2f, 0.0f);
 			*/
 
@@ -162,17 +164,39 @@ int main(int argc, char *argv[])
 				program.setModelMatrix(missileEntities[i].matrix);
 				missileEntities[i].xSpawnPoint = player.x + projectionWidth/2 + missileEntities[i].width/2;
 				missileEntities[i].MissleUpdateRoutine(elapsed);
-				DrawSpriteSheetSprite(&program, staticSpriteSheetTexture, 20, 10, 15, missleModelVerticies);
-
+				DrawSpriteSheetSprite(&program, dynamicSpriteSheetTexture, 338, 30, 30, missleModelVerticies);
 				if (player.isDirectlyCollidingWith(&missileEntities[i]))
+					player.handleCollisionWith(&missileEntities[i]);
+				for (unsigned j = 0; j < rainDropEntities.size(); j++)
 				{
-					if (!player.leftContact)
-						player.handleCollisionWith(&missileEntities[i]);
-					else
-					{
-						gameStatus = 1;
-						Mix_PlayMusic(musicLose, -1);
-					}
+					if (rainDropEntities[j].isDirectlyCollidingWith(&missileEntities[i]))
+						rainDropEntities[j].handleCollisionWith(&missileEntities[i]);
+				}
+			}
+
+			for (unsigned i = 0; i < rainDropEntities.size(); i++)
+			{
+				program.setModelMatrix(rainDropEntities[i].matrix);
+				rainDropEntities[i].ySpawnPoint = player.y + projectionHeight / 2 + rainDropEntities[i].height / 2;
+				rainDropEntities[i].xSpawnPoint = player.x - projectionWidth / 2;
+				rainDropEntities[i].RainDropUpdateRoutine(elapsed);
+				DrawSpriteSheetSprite(&program, dynamicSpriteSheetTexture, 446, 30, 30, rainDropsModelVerticies);
+
+				if (rainDropEntities[i].x > player.x + .4f)
+					rainDropEntities[i].xVelocity = -1;
+				else if (rainDropEntities[i].x < player.x - .4f)
+					rainDropEntities[i].xVelocity = 1;
+
+				if (player.isDirectlyCollidingWith(&rainDropEntities[i]))
+				{
+					//gameStatus = 1;
+					//Mix_PlayMusic(musicLose, -1);
+				}
+
+				for (unsigned j = 0; j < staticEntities.size(); j++)
+				{
+					if (rainDropEntities[i].isDirectlyCollidingWith(&staticEntities[j]))
+						rainDropEntities[i].handleCollisionWith(&staticEntities[j]);
 				}
 			}
 
@@ -182,14 +206,44 @@ int main(int argc, char *argv[])
 				if (player.bottomContact)
 					break;
 			}
-
-			for (unsigned i = 0; i < staticEntities.size(); i++)
+			
+			for (unsigned i = 0; i < missileEntities.size(); i++)
 			{
-				player.checkForDirectionalCollision(&staticEntities[i], "left", .3f);
-				if (player.leftContact)
+				player.checkForDirectionalCollision(&missileEntities[i], "right", .001f);
+				if (player.rightContact)
 					break;
 			}
-			
+
+			for (unsigned i = 0; i < rainDropEntities.size(); i++)
+			{
+				for (unsigned j = 0; j < staticEntities.size(); j++)
+				{
+					rainDropEntities[i].checkForDirectionalCollision(&staticEntities[j], "bottom", .001f);
+					if (rainDropEntities[i].bottomContact)
+						break;
+				}
+			}
+
+			for (unsigned i = 0; i < rainDropEntities.size(); i++)
+			{
+				for (unsigned j = 0; j < staticEntities.size(); j++)
+				{
+					rainDropEntities[i].checkForDirectionalCollision(&staticEntities[j], "left", .001f);
+					if (rainDropEntities[i].leftContact)
+						break;
+				}
+			}
+
+			for (unsigned i = 0; i < rainDropEntities.size(); i++)
+			{
+				for (unsigned j = 0; j < staticEntities.size(); j++)
+				{
+					rainDropEntities[i].checkForDirectionalCollision(&staticEntities[j], "right", .001f);
+					if (rainDropEntities[i].rightContact)
+						break;
+				}
+			}
+
 			if (!player.bottomContact)
 			{
 				for (unsigned i = 0; i < missileEntities.size(); i++)
@@ -261,7 +315,7 @@ int main(int argc, char *argv[])
 							if (level > 2)
 								level = 0;
 						}
-						initialGameSetup(level, &staticEntities, &missileEntities, &player, &goal);
+						initialGameSetup(level, &staticEntities, &missileEntities, &rainDropEntities, &player, &goal);
 						Mix_PlayMusic(musicPlaying, -1);
 						gameStatus = 3;
 					}

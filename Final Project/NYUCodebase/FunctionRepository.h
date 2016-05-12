@@ -78,13 +78,14 @@ float lerp(float v0, float v1, float t)
 	return (1.0f - t)*v0 + t*v1;
 }
 
-void initialGameSetup(unsigned level, vector<Entity>* staticContainer, vector<Entity>* missileContainer, Entity* thePlayer, Entity* theGoal)
+void initialGameSetup(unsigned level, vector<Entity>* staticContainer, vector<Entity>* missileContainer, vector<Entity>* rainDropContainer , Entity* thePlayer, Entity* theGoal)
 {
 	LevelData::setUpValues();
 	int seed = static_cast<int>(time(0));
 	srand(seed);
 	staticContainer->clear();
 	missileContainer->clear();
+	rainDropContainer->clear();
 
 	for (float i = -10; i < -10 + LevelData::numberOfTiles[level] / 2; i += .5f)
 	{
@@ -104,12 +105,23 @@ void initialGameSetup(unsigned level, vector<Entity>* staticContainer, vector<En
 	{
 		Entity missile;
 		missile.width = .5f;
-		missile.height = .1f;
+		missile.height = .15f;
 		missile.x = (rand() % 30);
-		missile.y = .5f + -(rand() % 7) / 2.0f;
-		missile.xVelocity = -4;
+		missile.y = .5f + -(rand() % 9) / 2.0f;
+		missile.xVelocity = -LevelData::missileSpeeds[level];
 		missile.matrix.setPosition(missile.x, missile.y, 0);
 		missileContainer->push_back(missile);
+	}
+
+	for (float i = 0; i < LevelData::numberOfRaindrops[level]; i++)
+	{
+		Entity raindrop;
+		raindrop.width = .3f;
+		raindrop.height = .4f;
+		raindrop.x = (rand() % 26) / 2.0f;
+		raindrop.y = 3 + (rand() % 8) / 2.0f;
+		raindrop.matrix.setPosition(raindrop.x, raindrop.y, 0);
+		rainDropContainer->push_back(raindrop);
 	}
 
 	thePlayer->x = (*staticContainer)[0].x;
