@@ -16,9 +16,9 @@ void LevelData::setUpValues()
 	numberOfGoals[1] = 2;
 	numberOfGoals[2] = 3;
 
-	numberOfMissiles[0] = 14;
-	numberOfMissiles[1] = 14;
-	numberOfMissiles[2] = 14;
+	numberOfMissiles[0] = 16;
+	numberOfMissiles[1] = 18;
+	numberOfMissiles[2] = 20;
 
 	numberOfRaindrops[0] = 0;
 	numberOfRaindrops[1] = 2;

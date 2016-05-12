@@ -94,16 +94,17 @@
   </ItemGroup>
   <ItemGroup>
     <Image Include="bg_shroom.png" />
+    <Image Include="intro_background.png" />
     <Image Include="master-spritesheet.png" />
     <Image Include="master-tileset.png" />
     <Image Include="spriteSheet.png" />
   </ItemGroup>
   <ItemGroup>
-    <Media Include="..\..\..\..\..\..\Desktop\MP3s\Chandelier.mp3" />
     <Media Include="Angel.mp3" />
     <Media Include="jumpSound.wav" />
     <Media Include="loseSound.wav" />
     <Media Include="Merry Go.mp3" />
+    <Media Include="Morning.mp3" />
     <Media Include="scoreSound.wav" />
     <Media Include="Winning Moment.mp3" />
   </ItemGroup>

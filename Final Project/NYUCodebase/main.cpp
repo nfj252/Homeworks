@@ -61,13 +61,14 @@ int main(int argc, char *argv[])
 	float rainDropsModelVerticies[] = { -.15f, -.2f, .15f, -.2f, .15f, .2f, -.15f, -.2f, .15f, .2f, -.15f, .2f };
 	float goalModelVerticies[] = { -.25f, -.25f, .25f, -.25f, .25f, .25f, -.25f, -.25f, .25f, .25f, -.25f, .25f };
 	float backgroundModelVerticies[] = { -30, -15, 30, -15, 30, 15, -30, -15, 30, 15, -30, 15 };
+	float PanelModelVerticies[] = { -15, -8, 15, -8, 15, 8, -15, -8, 15, 8, -15, 8 };
 	float texCoords[] = { 0.0, 1.0, 1.0, 1.0, 1.0, 0.0, 0.0, 1.0, 1.0, 0.0, 0.0, 0.0 };
 
 	Mix_OpenAudio(44100, MIX_DEFAULT_FORMAT, 2, 4096);
 	Mix_Music *musicPlaying = Mix_LoadMUS("Merry Go.mp3");
 	Mix_Music *musicWin = Mix_LoadMUS("Winning Moment.mp3");
 	Mix_Music *musicLose = Mix_LoadMUS("Angel.mp3");
-	Mix_Music *musicStart = Mix_LoadMUS("Chandelier.mp3");
+	Mix_Music *musicStart = Mix_LoadMUS("Morning.mp3");
 	Mix_PlayMusic(musicStart, -1);
 
 	Matrix titleTextMatrix;
@@ -79,6 +80,8 @@ int main(int argc, char *argv[])
 	GLuint dynamicSpriteSheetTexture = LoadTexture("master-spritesheet.png"); //30 x 30
 	GLuint staticSpriteSheetTexture = LoadTexture("master-tileset.png"); //10 x 5
 	GLuint backgroundTextureInGame = LoadTexture("bg_shroom.png");
+	GLuint backgroundTextureIntro = LoadTexture("intro_background.png");
+	GLuint backgroundTextureEnd = LoadTexture("bg_shroom.png");
 	
 	int gameStatus = 0;
 	int level = 0;
@@ -93,7 +96,6 @@ int main(int argc, char *argv[])
 	{
 		glClearColor(0.5f, 0.3f, 0.3f, 255.0f);
 		glClear(GL_COLOR_BUFFER_BIT);
-
 		program.setProjectionMatrix(projectionMatrix);
 		program.setViewMatrix(viewMatrix);
 		glEnableVertexAttribArray(program.positionAttribute);
@@ -108,16 +110,22 @@ int main(int argc, char *argv[])
 			viewMatrix.identity();
 			titleTextMatrix.setPosition(-2.75f, .5, 0.0f);
 			messageTextMatrix.setPosition(-2.75f, -.5, 0.0f);
-			program.setModelMatrix(titleTextMatrix);
 
 			if (gameStatus == 0)
 			{
+				program.setModelMatrix(inGameBGTextureMatrix);
+				DrawSpriteSheetSprite(&program, backgroundTextureIntro, 0, 1, 1, PanelModelVerticies);
+				program.setModelMatrix(titleTextMatrix);
 				DrawText(&program, font, "'Meet your friend at the end!'", .2f, 0.0f);
 				program.setModelMatrix(messageTextMatrix);
 				DrawText(&program, font, "Press enter to begin", .2f, 0.0f);
+				
 			}
 			else if (gameStatus == 1 || gameStatus == 2)
 			{
+				program.setModelMatrix(inGameBGTextureMatrix);
+				DrawSpriteSheetSprite(&program, backgroundTextureEnd, 0, 1, 1, PanelModelVerticies);
+				program.setModelMatrix(titleTextMatrix);
 				if (gameStatus == 1)	
 					DrawText(&program, font, "You Lose! Press Enter to replay", .2f, 0.0f);
 				else if (gameStatus == 2)
@@ -129,7 +137,6 @@ int main(int argc, char *argv[])
 		else if (gameStatus == 3)
 		{
 			viewMatrix.setPosition(-player.x, -player.y, 0);
-
 			program.setModelMatrix(inGameBGTextureMatrix);
 			DrawSpriteSheetSprite(&program, backgroundTextureInGame, 0, 1, 1, backgroundModelVerticies);
 
@@ -161,9 +168,11 @@ int main(int argc, char *argv[])
 						goalEntities[i].enabled = false;
 						numberOfGoals--;
 						Mix_PlayChannel(-1, Mix_LoadWAV("scoreSound.wav"), 0);
-						Mix_PlayMusic(musicWin, -1);
 						if (numberOfGoals == 0)
+						{
+							Mix_PlayMusic(musicWin, -1);
 							gameStatus = 2;
+						}
 					}
 				}
 			}

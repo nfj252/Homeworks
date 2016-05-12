@@ -89,15 +89,25 @@ void initialGameSetup(unsigned level, Entity* thePlayer, vector<Entity>* goalCon
 
 	for (float i = -10; i < -10 + LevelData::numberOfTiles[level] / 2; i += .5f)
 	{
-		Entity floor;
-		floor.width = .5f;
-		floor.height = .5f;
-		floor.x = i;
-		if (i == -10)
-			floor.y = 0;
-		else
-			floor.y = -(rand() % 7) / 2.0f;
-		staticContainer->push_back(floor);
+		int randomNum = 1 + rand() % 3;
+		for (int j = 0; j < randomNum; j++)
+		{
+			Entity floor;
+			floor.width = .5f;
+			floor.height = .5f;
+			floor.x = i;
+			if (i == -10)
+				floor.y = 0;
+			else
+			{
+				randomNum = rand() % 3;
+				if (randomNum < 1)
+					floor.y = (*staticContainer)[i + 10].y;
+				else
+					floor.y = -(rand() % 4);
+			}
+			staticContainer->push_back(floor);
+		}
 	}
 
 	for (float i = 0; i < LevelData::numberOfMissiles[level]; i++)
@@ -106,7 +116,7 @@ void initialGameSetup(unsigned level, Entity* thePlayer, vector<Entity>* goalCon
 		missile.width = .5f;
 		missile.height = .15f;
 		missile.x = (rand() % 30);
-		missile.y = .5f + -(rand() % 9) / 2.0f;
+		missile.y = 1 + -(rand() % 7);
 		missile.xVelocity = -LevelData::missileSpeeds[level];
 		missileContainer->push_back(missile);
 	}
