@@ -48,7 +48,7 @@ void Entity::MissleUpdateRoutine(float elapsed)
 	if (x <= -15)
 	{
 		x = xSpawnPoint;
-		y = 1 + -(rand() % 7);
+		y = .5f + -(rand() % 11) / 2.0f;
 		matrix.setPosition(x,y,0);
 	}
 	x += xVelocity * elapsed;

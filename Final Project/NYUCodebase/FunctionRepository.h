@@ -104,7 +104,7 @@ void initialGameSetup(unsigned level, Entity* thePlayer, vector<Entity>* goalCon
 				if (randomNum < 1)
 					floor.y = (*staticContainer)[i + 10].y;
 				else
-					floor.y = -(rand() % 4);
+					floor.y = -(rand() % 9) / 2.0f;
 			}
 			staticContainer->push_back(floor);
 		}
@@ -116,7 +116,7 @@ void initialGameSetup(unsigned level, Entity* thePlayer, vector<Entity>* goalCon
 		missile.width = .5f;
 		missile.height = .15f;
 		missile.x = (rand() % 30);
-		missile.y = 1 + -(rand() % 7);
+		missile.y = .5f + -(rand() % 11) / 2.0f;
 		missile.xVelocity = -LevelData::missileSpeeds[level];
 		missileContainer->push_back(missile);
 	}
@@ -135,8 +135,8 @@ void initialGameSetup(unsigned level, Entity* thePlayer, vector<Entity>* goalCon
 	{
 		Entity goal;
 		goal.enabled = true;
-		goal.width = thePlayer->width;
-		goal.height = thePlayer->height;
+		goal.width = .4f;
+		goal.height = .4f;
 
 		if (i == 0)
 		{
@@ -152,6 +152,8 @@ void initialGameSetup(unsigned level, Entity* thePlayer, vector<Entity>* goalCon
 		goalContainer->push_back(goal);
 	}
 
+	thePlayer->width = .4f;
+	thePlayer->height = .4f;
 	thePlayer->x = (*staticContainer)[0].x;
 	thePlayer->y = (*staticContainer)[0].y + (*staticContainer)[0].height / 2 + thePlayer->height / 2;
 	thePlayer->xVelocity = 0;

@@ -55,11 +55,11 @@ int main(int argc, char *argv[])
 	vector<Entity> rainDropEntities;
 	vector<Entity> staticEntities;
 	vector<Entity> goalEntities;
-	float playerModelVerticies[] = { -.25f, -.25f, .25f, -.25f, .25f, .25f, -.25f, -.25f, .25f, .25f, -.25f, .25f };
+	float playerModelVerticies[] = { -.2f, -.2f, .2f, -.2f, .2f, .2f, -.2f, -.2f, .2f, .2f, -.2f, .2f };
 	float blockModelVerticies[] = { -.25f, -.25f, .25f, -.25f, .25f, .25f, -.25f, -.25f, .25f, .25f, -.25f, .25f };
 	float missleModelVerticies[] = { -.25f, -.075f, .25f, -.075f, .25f, .075f, -.25f, -.075f, .25f, .075f, -.25f, .075f };
 	float rainDropsModelVerticies[] = { -.15f, -.2f, .15f, -.2f, .15f, .2f, -.15f, -.2f, .15f, .2f, -.15f, .2f };
-	float goalModelVerticies[] = { -.25f, -.25f, .25f, -.25f, .25f, .25f, -.25f, -.25f, .25f, .25f, -.25f, .25f };
+	float goalModelVerticies[] = { -.2f, -.2f, .2f, -.2f, .2f, .2f, -.2f, -.2f, .2f, .2f, -.2f, .2f };
 	float backgroundModelVerticies[] = { -30, -15, 30, -15, 30, 15, -30, -15, 30, 15, -30, 15 };
 	float PanelModelVerticies[] = { -15, -8, 15, -8, 15, 8, -15, -8, 15, 8, -15, 8 };
 	float texCoords[] = { 0.0, 1.0, 1.0, 1.0, 1.0, 0.0, 0.0, 1.0, 1.0, 0.0, 0.0, 0.0 };
@@ -279,7 +279,7 @@ int main(int argc, char *argv[])
 				}
 			}
 	
-			if (player.y + player.height / 2 <= -4)
+			if (player.y + player.height / 2 <= -6)
 			{
 				gameStatus = 1;
 				Mix_PlayChannel(-1, Mix_LoadWAV("loseSound.wav"), 0);
@@ -288,29 +288,29 @@ int main(int argc, char *argv[])
 
 			if (keys[SDL_SCANCODE_RIGHT])
 			{
-				playerModelVerticies[0] = -.25f;
-				playerModelVerticies[2] = .25f;
-				playerModelVerticies[4] = .25f;
-				playerModelVerticies[6] = -.25f;
-				playerModelVerticies[8] = .25f;
-				playerModelVerticies[10] = -.25f;
+				playerModelVerticies[0] = -.2f;
+				playerModelVerticies[2] = .2f;
+				playerModelVerticies[4] = .2f;
+				playerModelVerticies[6] = -.2f;
+				playerModelVerticies[8] = .2f;
+				playerModelVerticies[10] = -.2f;
 
 				if (player.xVelocity < 0)
 					player.xVelocity = 0;
-				player.xAcceleration = 3;
+				player.xAcceleration = 3.5f;
 			}
 			else if (keys[SDL_SCANCODE_LEFT])
 			{
-				playerModelVerticies[0] = .25f;
-				playerModelVerticies[2] = -.25f;
-				playerModelVerticies[4] = -.25f;
-				playerModelVerticies[6] = .25f;
-				playerModelVerticies[8] = -.25f;
-				playerModelVerticies[10] = .25f;
+				playerModelVerticies[0] = .2f;
+				playerModelVerticies[2] = -.2f;
+				playerModelVerticies[4] = -.2f;
+				playerModelVerticies[6] = .2f;
+				playerModelVerticies[8] = -.2f;
+				playerModelVerticies[10] = .2f;
 
 				if (player.xVelocity > 0)
 					player.xVelocity = 0;
-				player.xAcceleration = -3;
+				player.xAcceleration = -3.5f;
 			}
 			else if (keys == SDL_GetKeyboardState(NULL))
 			{
@@ -350,7 +350,7 @@ int main(int argc, char *argv[])
 						if (player.bottomContact)
 						{
 							Mix_PlayChannel(-1, Mix_LoadWAV("jumpSound.wav"), 0);
-							player.yVelocity = 4.25f;
+							player.yVelocity = 4.0f;
 						}
 					}
 				}
