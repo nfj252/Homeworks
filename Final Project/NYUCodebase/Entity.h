@@ -31,6 +31,7 @@ public:
 	Entity();
 	~Entity();
 	void DynamicUpdateRoutine(float elapsed);
+	void StaticUpdateRoutine(float elapsed);
 	void MissleUpdateRoutine(float elapsed);
 	void RainDropUpdateRoutine(float elapsed);
 	bool isDirectlyCollidingWith(Entity* other);

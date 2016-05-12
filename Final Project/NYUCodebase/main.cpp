@@ -25,7 +25,7 @@ SDL_Window* displayWindow;
 int main(int argc, char *argv[])
 {
 	SDL_Init(SDL_INIT_VIDEO);
-	displayWindow = SDL_CreateWindow("Save Yo Friend", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, 640, 360, SDL_WINDOW_OPENGL);
+	displayWindow = SDL_CreateWindow("Save Yo Friends", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, 640, 360, SDL_WINDOW_OPENGL);
 	SDL_GLContext context = SDL_GL_CreateContext(displayWindow);
 	SDL_GL_MakeCurrent(displayWindow, context);
 #ifdef _WINDOWS
@@ -50,25 +50,25 @@ int main(int argc, char *argv[])
 										-projectionHeight/2, projectionHeight/2, 
 										-1.0f, 1.0f); //(l,r,b,t,n,f) n/f doesnt do anything in ortho
 
-	Mix_OpenAudio(44100, MIX_DEFAULT_FORMAT, 2, 4096);
-	Mix_Music *musicPlaying = Mix_LoadMUS("muffins.mp3");
-	Mix_Music *musicWin = Mix_LoadMUS("wombo.mp3");
-	Mix_Music *musicLose = Mix_LoadMUS("wombo.mp3");
-	Mix_Music *musicStart = Mix_LoadMUS("Chandelier.mp3");
-	Mix_PlayMusic(musicStart, -1);
-
 	Entity player;
 	vector<Entity> missileEntities;
 	vector<Entity> rainDropEntities;
 	vector<Entity> staticEntities;
-	Entity goal;
+	vector<Entity> goalEntities;
 	float playerModelVerticies[] = { -.25f, -.25f, .25f, -.25f, .25f, .25f, -.25f, -.25f, .25f, .25f, -.25f, .25f };
 	float blockModelVerticies[] = { -.25f, -.25f, .25f, -.25f, .25f, .25f, -.25f, -.25f, .25f, .25f, -.25f, .25f };
 	float missleModelVerticies[] = { -.25f, -.075f, .25f, -.075f, .25f, .075f, -.25f, -.075f, .25f, .075f, -.25f, .075f };
 	float rainDropsModelVerticies[] = { -.15f, -.2f, .15f, -.2f, .15f, .2f, -.15f, -.2f, .15f, .2f, -.15f, .2f };
 	float goalModelVerticies[] = { -.25f, -.25f, .25f, -.25f, .25f, .25f, -.25f, -.25f, .25f, .25f, -.25f, .25f };
-	float backgroundModelVerticies[] = { -20, -10, 20, -10, 20, 10, -20, -10, 20, 10, -20, 10 };
+	float backgroundModelVerticies[] = { -30, -15, 30, -15, 30, 15, -30, -15, 30, 15, -30, 15 };
 	float texCoords[] = { 0.0, 1.0, 1.0, 1.0, 1.0, 0.0, 0.0, 1.0, 1.0, 0.0, 0.0, 0.0 };
+
+	Mix_OpenAudio(44100, MIX_DEFAULT_FORMAT, 2, 4096);
+	Mix_Music *musicPlaying = Mix_LoadMUS("Merry Go.mp3");
+	Mix_Music *musicWin = Mix_LoadMUS("Winning Moment.mp3");
+	Mix_Music *musicLose = Mix_LoadMUS("Angel.mp3");
+	Mix_Music *musicStart = Mix_LoadMUS("Chandelier.mp3");
+	Mix_PlayMusic(musicStart, -1);
 
 	Matrix titleTextMatrix;
 	Matrix messageTextMatrix;
@@ -78,10 +78,11 @@ int main(int argc, char *argv[])
 
 	GLuint dynamicSpriteSheetTexture = LoadTexture("master-spritesheet.png"); //30 x 30
 	GLuint staticSpriteSheetTexture = LoadTexture("master-tileset.png"); //10 x 5
-	GLuint backgroundTexture = LoadTexture("bg_shroom.png");
+	GLuint backgroundTextureInGame = LoadTexture("bg_shroom.png");
 	
 	int gameStatus = 0;
-	int level = 2;
+	int level = 0;
+	int numberOfGoals = 0;
 	float ticks = 0.0f;
 	float lastFrameTicks = 0.0f;
 	float elapsed = 0.0f;
@@ -130,7 +131,7 @@ int main(int argc, char *argv[])
 			viewMatrix.setPosition(-player.x, -player.y, 0);
 
 			program.setModelMatrix(inGameBGTextureMatrix);
-			DrawSpriteSheetSprite(&program, backgroundTexture, 0, 1, 1, backgroundModelVerticies);
+			DrawSpriteSheetSprite(&program, backgroundTextureInGame, 0, 1, 1, backgroundModelVerticies);
 
 			/*
 			titleTextMatrix.setPosition(player.x, player.y + 1, 0.0f);
@@ -140,10 +141,6 @@ int main(int argc, char *argv[])
 			DrawText(&program, font, ss.str(), .2f, 0.0f);
 			*/
 
-
-			program.setModelMatrix(goal.matrix);
-			DrawSpriteSheetSprite(&program, dynamicSpriteSheetTexture, 79, 30, 30, goalModelVerticies);
-
 			program.setModelMatrix(player.matrix);
 			player.DynamicUpdateRoutine(elapsed);
 			if (player.bottomContact)
@@ -151,9 +148,30 @@ int main(int argc, char *argv[])
 			else
 				DrawSpriteSheetSprite(&program, dynamicSpriteSheetTexture, 29, 30, 30, playerModelVerticies);
 			
+			for (unsigned i = 0; i < goalEntities.size(); i++)
+			{
+				if (goalEntities[i].enabled)
+				{
+					program.setModelMatrix(goalEntities[i].matrix);
+					goalEntities[i].StaticUpdateRoutine(elapsed);
+					DrawSpriteSheetSprite(&program, dynamicSpriteSheetTexture, 79, 30, 30, goalModelVerticies);
+				
+					if (player.isDirectlyCollidingWith(&goalEntities[i]))
+					{
+						goalEntities[i].enabled = false;
+						numberOfGoals--;
+						Mix_PlayChannel(-1, Mix_LoadWAV("scoreSound.wav"), 0);
+						Mix_PlayMusic(musicWin, -1);
+						if (numberOfGoals == 0)
+							gameStatus = 2;
+					}
+				}
+			}
+
 			for (unsigned i = 0; i < staticEntities.size(); i++)
 			{
 				program.setModelMatrix(staticEntities[i].matrix);
+				staticEntities[i].StaticUpdateRoutine(elapsed);
 				DrawSpriteSheetSprite(&program, staticSpriteSheetTexture, 20, 10, 5, blockModelVerticies);
 				if (player.isDirectlyCollidingWith(&staticEntities[i]))
 					player.handleCollisionWith(&staticEntities[i]);
@@ -183,14 +201,15 @@ int main(int argc, char *argv[])
 				DrawSpriteSheetSprite(&program, dynamicSpriteSheetTexture, 446, 30, 30, rainDropsModelVerticies);
 
 				if (rainDropEntities[i].x > player.x + .4f)
-					rainDropEntities[i].xVelocity = -1;
+					rainDropEntities[i].xVelocity = -.75f;
 				else if (rainDropEntities[i].x < player.x - .4f)
-					rainDropEntities[i].xVelocity = 1;
+					rainDropEntities[i].xVelocity = .75f;
 
 				if (player.isDirectlyCollidingWith(&rainDropEntities[i]))
 				{
-					//gameStatus = 1;
-					//Mix_PlayMusic(musicLose, -1);
+					gameStatus = 1;
+					Mix_PlayChannel(-1, Mix_LoadWAV("loseSound.wav"), 0);
+					Mix_PlayMusic(musicLose, -1);
 				}
 
 				for (unsigned j = 0; j < staticEntities.size(); j++)
@@ -207,11 +226,18 @@ int main(int argc, char *argv[])
 					break;
 			}
 			
-			for (unsigned i = 0; i < missileEntities.size(); i++)
+			if (!player.bottomContact)
 			{
-				player.checkForDirectionalCollision(&missileEntities[i], "right", .001f);
-				if (player.rightContact)
-					break;
+				for (unsigned i = 0; i < missileEntities.size(); i++)
+				{
+					player.checkForDirectionalCollision(&missileEntities[i], "bottom", .001f);
+					if (player.bottomContact)
+					{
+						if (player.xAcceleration == 0)
+						player.xVelocity = missileEntities[i].xVelocity;
+						break;
+					}
+				}
 			}
 
 			for (unsigned i = 0; i < rainDropEntities.size(); i++)
@@ -243,29 +269,14 @@ int main(int argc, char *argv[])
 						break;
 				}
 			}
-
-			if (!player.bottomContact)
-			{
-				for (unsigned i = 0; i < missileEntities.size(); i++)
-				{
-					player.checkForDirectionalCollision(&missileEntities[i], "bottom", .001f);
-					if (player.bottomContact)
-						break;
-				}
-			}
-
+	
 			if (player.y + player.height / 2 <= -4)
 			{
 				gameStatus = 1;
+				Mix_PlayChannel(-1, Mix_LoadWAV("loseSound.wav"), 0);
 				Mix_PlayMusic(musicLose, -1);
 			}
 
-			if (player.isDirectlyCollidingWith(&goal))
-			{
-				gameStatus = 2;
-				Mix_PlayMusic(musicWin, -1);
-			}
-			
 			if (keys[SDL_SCANCODE_RIGHT])
 			{
 				playerModelVerticies[0] = -.25f;
@@ -315,7 +326,8 @@ int main(int argc, char *argv[])
 							if (level > 2)
 								level = 0;
 						}
-						initialGameSetup(level, &staticEntities, &missileEntities, &rainDropEntities, &player, &goal);
+						initialGameSetup(level, &player, &goalEntities, &staticEntities, &missileEntities, &rainDropEntities);
+						numberOfGoals = LevelData::numberOfGoals[level];
 						Mix_PlayMusic(musicPlaying, -1);
 						gameStatus = 3;
 					}
@@ -329,7 +341,7 @@ int main(int argc, char *argv[])
 						if (player.bottomContact)
 						{
 							Mix_PlayChannel(-1, Mix_LoadWAV("jumpSound.wav"), 0);
-							player.yVelocity = 4.0f;
+							player.yVelocity = 4.25f;
 						}
 					}
 				}

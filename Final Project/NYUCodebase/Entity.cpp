@@ -25,7 +25,6 @@ Entity::~Entity()
 
 }
 
-
 void Entity::DynamicUpdateRoutine(float elapsed)
 {
 	xVelocity += xAcceleration * elapsed;
@@ -36,7 +35,12 @@ void Entity::DynamicUpdateRoutine(float elapsed)
 	yVelocity += gravity * elapsed;
 	x += xVelocity * elapsed;
 	y += yVelocity * elapsed;
-	matrix.Translate(xVelocity * elapsed, yVelocity * elapsed, 0.0f);
+	matrix.setPosition(x, y, 0.0f);
+}
+
+void Entity::StaticUpdateRoutine(float elapsed)
+{
+	matrix.setPosition(x, y, 0.0f);
 }
 
 void Entity::MissleUpdateRoutine(float elapsed)
@@ -48,14 +52,16 @@ void Entity::MissleUpdateRoutine(float elapsed)
 		matrix.setPosition(x,y,0);
 	}
 	x += xVelocity * elapsed;
-	matrix.Translate(xVelocity * elapsed, yVelocity * elapsed, 0.0f);
+	matrix.setPosition(x, y, 0.0f);
 }
 
 void Entity::RainDropUpdateRoutine(float elapsed)
 {
 	if (y <= -5)
 	{
-		x = xSpawnPoint + (rand() % 26) / 2.0f;
+		x = xSpawnPoint + (rand() % 14);
+		while (x > xSpawnPoint + 2.5f && x < xSpawnPoint + 11.5f)
+			x = xSpawnPoint + (rand() % 14);
 		y = ySpawnPoint;
 		yVelocity = 0;
 		matrix.setPosition(x, y, 0);
@@ -65,48 +71,43 @@ void Entity::RainDropUpdateRoutine(float elapsed)
 	yVelocity += gravity * elapsed;
 	y += yVelocity * elapsed;
 	x += xVelocity * elapsed;
-	matrix.Translate(xVelocity * elapsed, yVelocity * elapsed, 0.0f);
+	matrix.setPosition(x, y, 0.0f);
 }
 
 bool Entity::isDirectlyCollidingWith(Entity* other)
 {
-	if (y - height / 2 < other->y + other->height / 2 && y + height / 2 > other->y - other->height / 2 &&
-	x + width / 2 > other->x - other->width / 2 && x - width / 2 < other->x + other->width / 2)
-	{
+	if (y - height / 2 < other->y + other->height / 2 && y + height / 2 > other->y - other->height / 2 && x + width / 2 > other->x - other->width / 2 && x - width / 2 < other->x + other->width / 2)
 		return true;
-	}
 	else
-	{
 		return false;
-	}
 }
 
 void Entity::checkForDirectionalCollision(Entity* other, string direction, float offset)
 {
 	if (direction == "bottom")
 	{
-		if (y - height / 2 < other->y + other->height / 2 + offset && y > other->y && abs(x - other->x) < (other->width + width) / 2 - offset)
+		if (y - height / 2 < other->y + other->height / 2 + offset && y > other->y && abs(x - other->x) < (other->width + width)/2)
 			bottomContact = true;
 		else
 			bottomContact = false;
 	}
 	else if (direction == "top")
 	{
-		if (y + height / 2 > other->y - other->height / 2 - offset && y < other->y && abs(x - other->x) < (other->width + width) / 2 - offset)
+		if (y + height / 2 > other->y - other->height / 2 - offset && y < other->y && abs(x - other->x) < (other->width + width)/2)
 			topContact = true;
 		else
 			topContact = false;
 	}
 	else if (direction == "left")
 	{
-		if (x - width / 2 < other->x + other->width / 2 + offset && x > other->x && abs(y - other->y) < (other->height + height) / 2 - offset)
+		if (x - width / 2 < other->x + other->width / 2 + offset && x > other->x && abs(y - other->y) < (other->height + height)/2)
 			leftContact = true;
 		else
 			leftContact = false;
 	}
 	else if (direction == "right")
 	{
-		if (x + width / 2 > other->x - other->width / 2 - offset && x < other->x && abs(y - other->y) < (other->height + height) / 2 - offset)
+		if (x + width / 2 > other->x - other->width / 2 - offset && x < other->x && abs(y - other->y) < (other->height + height)/2)
 			rightContact = true;
 		else
 			rightContact = false;
@@ -121,14 +122,14 @@ void Entity::handleCollisionWith(Entity* other)
 		if (y > other->y)
 		{
 			float YPenetration = abs((y - height / 2) - (other->y + other->height / 2));
-			y += YPenetration + .0001f;
-			matrix.Translate(0, YPenetration + .0001f, 0);
+			y += YPenetration + .000001f;
+			matrix.Translate(0, YPenetration + .000001f, 0);
 		}
 		if (y < other->y)
 		{
 			float YPenetration = abs((y + height / 2) - (other->y - other->height / 2));
-			y -= (YPenetration + .0001f);
-			matrix.Translate(0, -YPenetration - .0001f, 0);
+			y -= (YPenetration + .000001f);
+			matrix.Translate(0, -YPenetration - .000001f, 0);
 		}
 	}
 
@@ -138,14 +139,14 @@ void Entity::handleCollisionWith(Entity* other)
 		if (x > other->x)
 		{
 			float XPenetration = abs((x - width / 2) - (other->x + other->width / 2));
-			x += XPenetration + .0001f;
-			matrix.Translate(XPenetration + .0001f, 0, 0);
+			x += XPenetration + .000001f;
+			matrix.Translate(XPenetration + .000001f, 0, 0);
 		}
 		if (x < other->x)
 		{
 			float XPenetration = abs((x + width / 2) - (other->x - other->width / 2));
-			x -= (XPenetration + .0001f);
-			matrix.Translate(-XPenetration - .0001f, 0, 0);
+			x -= (XPenetration + .000001f);
+			matrix.Translate(-XPenetration - .000001f, 0, 0);
 		}
 	}
 }

@@ -56,8 +56,7 @@ void DrawText(ShaderProgram *program, int fontTexture, std::string text, float s
 	glDrawArrays(GL_TRIANGLES, 0, text.size() * 6);
 }
 
-void DrawSpriteSheetSprite(ShaderProgram *program, int spriteTexture, int index, int spriteCountX, int spriteCountY,
-	float matrixVerticies[])
+void DrawSpriteSheetSprite(ShaderProgram *program, int spriteTexture, int index, int spriteCountX, int spriteCountY, float matrixVerticies[])
 {
 	float u = (float)(((int)index) % spriteCountX) / (float)spriteCountX;
 	float v = (float)(((int)index) / spriteCountX) / (float)spriteCountY;
@@ -78,11 +77,12 @@ float lerp(float v0, float v1, float t)
 	return (1.0f - t)*v0 + t*v1;
 }
 
-void initialGameSetup(unsigned level, vector<Entity>* staticContainer, vector<Entity>* missileContainer, vector<Entity>* rainDropContainer , Entity* thePlayer, Entity* theGoal)
+void initialGameSetup(unsigned level, Entity* thePlayer, vector<Entity>* goalContainer, vector<Entity>* staticContainer, vector<Entity>* missileContainer, vector<Entity>* rainDropContainer)
 {
 	LevelData::setUpValues();
 	int seed = static_cast<int>(time(0));
 	srand(seed);
+	goalContainer->clear();
 	staticContainer->clear();
 	missileContainer->clear();
 	rainDropContainer->clear();
@@ -97,7 +97,6 @@ void initialGameSetup(unsigned level, vector<Entity>* staticContainer, vector<En
 			floor.y = 0;
 		else
 			floor.y = -(rand() % 7) / 2.0f;
-		floor.matrix.setPosition(floor.x, floor.y, 0);
 		staticContainer->push_back(floor);
 	}
 
@@ -109,7 +108,6 @@ void initialGameSetup(unsigned level, vector<Entity>* staticContainer, vector<En
 		missile.x = (rand() % 30);
 		missile.y = .5f + -(rand() % 9) / 2.0f;
 		missile.xVelocity = -LevelData::missileSpeeds[level];
-		missile.matrix.setPosition(missile.x, missile.y, 0);
 		missileContainer->push_back(missile);
 	}
 
@@ -120,15 +118,31 @@ void initialGameSetup(unsigned level, vector<Entity>* staticContainer, vector<En
 		raindrop.height = .4f;
 		raindrop.x = (rand() % 26) / 2.0f;
 		raindrop.y = 3 + (rand() % 8) / 2.0f;
-		raindrop.matrix.setPosition(raindrop.x, raindrop.y, 0);
 		rainDropContainer->push_back(raindrop);
+	}
+
+	for (float i = 0; i < LevelData::numberOfGoals[level]; i++)
+	{
+		Entity goal;
+		goal.enabled = true;
+		goal.width = thePlayer->width;
+		goal.height = thePlayer->height;
+
+		if (i == 0)
+		{
+			goal.x = (*staticContainer)[staticContainer->size() - 1].x;
+			goal.y = (*staticContainer)[staticContainer->size() - 1].y + (*staticContainer)[staticContainer->size() - 1].height / 2 + goal.height / 2;
+		}
+		else
+		{
+			int randomNum = 15 + (rand() % (staticContainer->size() - 16));
+			goal.x = (*staticContainer)[randomNum].x;
+			goal.y = (*staticContainer)[randomNum].y + (*staticContainer)[randomNum].height / 2 + goal.height / 2;
+		}
+		goalContainer->push_back(goal);
 	}
 
 	thePlayer->x = (*staticContainer)[0].x;
 	thePlayer->y = (*staticContainer)[0].y + (*staticContainer)[0].height / 2 + thePlayer->height / 2;
-	thePlayer->matrix.setPosition(thePlayer->x, thePlayer->y, 0);
-
-	theGoal->x = (*staticContainer)[staticContainer->size() - 1].x;
-	theGoal->y = (*staticContainer)[staticContainer->size() - 1].y + (*staticContainer)[staticContainer->size() - 1].height / 2 + theGoal->height / 2;
-	theGoal->matrix.setPosition(theGoal->x, theGoal->y, 0);
+	thePlayer->xVelocity = 0;
 }

@@ -100,10 +100,12 @@
   </ItemGroup>
   <ItemGroup>
     <Media Include="..\..\..\..\..\..\Desktop\MP3s\Chandelier.mp3" />
-    <Media Include="jello.wav" />
+    <Media Include="Angel.mp3" />
     <Media Include="jumpSound.wav" />
-    <Media Include="muffins.mp3" />
-    <Media Include="wombo.mp3" />
+    <Media Include="loseSound.wav" />
+    <Media Include="Merry Go.mp3" />
+    <Media Include="scoreSound.wav" />
+    <Media Include="Winning Moment.mp3" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
