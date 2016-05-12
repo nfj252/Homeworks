@@ -72,7 +72,8 @@ int main(int argc, char *argv[])
 	Mix_PlayMusic(musicStart, -1);
 
 	Matrix titleTextMatrix;
-	Matrix messageTextMatrix;
+	Matrix messageTextMatrix1;
+	Matrix messageTextMatrix2;
 	Matrix inGameBGTextureMatrix;
 	Matrix titleBGTextureMatrix;
 	GLuint font = LoadTexture("font1.png");
@@ -108,30 +109,42 @@ int main(int argc, char *argv[])
 		if (gameStatus == 0 || gameStatus == 1 || gameStatus == 2)
 		{
 			viewMatrix.identity();
-			titleTextMatrix.setPosition(-2.75f, .5, 0.0f);
-			messageTextMatrix.setPosition(-2.75f, -.5, 0.0f);
 
 			if (gameStatus == 0)
 			{
 				program.setModelMatrix(inGameBGTextureMatrix);
 				DrawSpriteSheetSprite(&program, backgroundTextureIntro, 0, 1, 1, PanelModelVerticies);
+				titleTextMatrix.setPosition(-3.15f, .5, 0.0f);
 				program.setModelMatrix(titleTextMatrix);
-				DrawText(&program, font, "'Meet your friend at the end!'", .2f, 0.0f);
-				program.setModelMatrix(messageTextMatrix);
-				DrawText(&program, font, "Press enter to begin", .2f, 0.0f);
+				DrawText(&program, font, "Meet Your Friends", .4f, 0.0f);
+				messageTextMatrix1.setPosition(-2.85f, -.6, 0.0f);
+				program.setModelMatrix(messageTextMatrix1);
+				DrawText(&program, font, "Press enter to begin", .3f, 0.0f);
 				
 			}
 			else if (gameStatus == 1 || gameStatus == 2)
 			{
 				program.setModelMatrix(inGameBGTextureMatrix);
 				DrawSpriteSheetSprite(&program, backgroundTextureEnd, 0, 1, 1, PanelModelVerticies);
+				titleTextMatrix.setPosition(-1.5f, .5, 0.0f);
 				program.setModelMatrix(titleTextMatrix);
-				if (gameStatus == 1)	
-					DrawText(&program, font, "You Lose! Press Enter to replay", .2f, 0.0f);
+				if (gameStatus == 1)
+				{
+					DrawText(&program, font, "You Died", .4f, 0.0f);
+					messageTextMatrix1.setPosition(-2.2f, -.6, 0.0f);
+					program.setModelMatrix(messageTextMatrix1);
+					DrawText(&program, font, "Press 'Enter' to Replay", .2f, 0.0f);
+				}
 				else if (gameStatus == 2)
-					DrawText(&program, font, "You Win! Press Enter to Proceed", .2f, 0.0f);
-				program.setModelMatrix(messageTextMatrix);
-				DrawText(&program, font, "or press Q to quit", .2f, 0.0f);
+				{
+					DrawText(&program, font, "You Win!", .4f, 0.0f);
+					messageTextMatrix1.setPosition(-2.25f, -.6, 0.0f);
+					program.setModelMatrix(messageTextMatrix1);
+					DrawText(&program, font, "Press Enter To Continue", .2f, 0.0f);
+				}
+				messageTextMatrix2.setPosition(-1.6f, -1, 0.0f);
+				program.setModelMatrix(messageTextMatrix2);
+				DrawText(&program, font, "Press 'Q' to Quit", .2f, 0.0f);
 			}
 		}
 		else if (gameStatus == 3)
@@ -139,14 +152,6 @@ int main(int argc, char *argv[])
 			viewMatrix.setPosition(-player.x, -player.y, 0);
 			program.setModelMatrix(inGameBGTextureMatrix);
 			DrawSpriteSheetSprite(&program, backgroundTextureInGame, 0, 1, 1, backgroundModelVerticies);
-
-			/*
-			titleTextMatrix.setPosition(player.x, player.y + 1, 0.0f);
-			program.setModelMatrix(titleTextMatrix);
-			ostringstream ss;
-			ss << rainDropEntities[0].yVelocity;
-			DrawText(&program, font, ss.str(), .2f, 0.0f);
-			*/
 
 			program.setModelMatrix(player.matrix);
 			player.DynamicUpdateRoutine(elapsed);
@@ -227,6 +232,15 @@ int main(int argc, char *argv[])
 						rainDropEntities[i].handleCollisionWith(&staticEntities[j]);
 				}
 			}
+
+			titleTextMatrix.setPosition(player.x - 2.8f, player.y + 1.8f, 0.0f);
+			program.setModelMatrix(titleTextMatrix);
+			DrawText(&program, font, "Friends left to meet: ", .25f, 0.0f);
+			messageTextMatrix1.setPosition(player.x + 2.8f, player.y + 1.8f, 0.0f);
+			program.setModelMatrix(messageTextMatrix1);
+			ostringstream ss;
+			ss << numberOfGoals;
+			DrawText(&program, font, ss.str(), .25f, 0.0f);
 
 			for (unsigned i = 0; i < staticEntities.size(); i++)
 			{
@@ -350,7 +364,7 @@ int main(int argc, char *argv[])
 						if (player.bottomContact)
 						{
 							Mix_PlayChannel(-1, Mix_LoadWAV("jumpSound.wav"), 0);
-							player.yVelocity = 4.0f;
+							player.yVelocity = 4.15f;
 						}
 					}
 				}
